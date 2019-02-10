@@ -3,6 +3,7 @@
 import { app, BrowserWindow } from 'electron'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
+import { call } from './test.js'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -59,4 +60,7 @@ app.on('activate', () => {
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
   mainWindow = createMainWindow()
+  call().then((response) => {
+    console.log(`response is ${response}`)
+  })
 })
