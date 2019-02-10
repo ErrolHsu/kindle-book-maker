@@ -2,9 +2,13 @@
 
 import { app, BrowserWindow } from 'electron'
 import * as path from 'path'
+import * as log from 'electron-log'
 import { format as formatUrl } from 'url'
 import { call } from './test.js'
 
+log.transports.file.level = 'info';
+log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s} {z}] [{level}] {text}';
+log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s} {z}] [{level}] {text}';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
@@ -60,7 +64,8 @@ app.on('activate', () => {
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
   mainWindow = createMainWindow()
-  call().then((response) => {
-    console.log(`response is ${response}`)
-  })
+  log.info('Hello, log');
+  // call().then((response) => {
+  //   console.log(`response is ${response}`)
+  // })
 })
