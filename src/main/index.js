@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import * as log from 'electron-log'
 import moment from 'moment-timezone'
@@ -74,8 +74,12 @@ app.on('ready', () => {
   init().then(() => {
     mainWindow = createMainWindow()
     log.info('Hello, log');
-    // call().then((response) => {
-    //   console.log(`response is ${response}`)
-    // })
   })
 })
+
+ipcMain.on('test-build', (event, arg) => {
+  call().then((response) => {
+    console.log(arg)
+    console.log(`response is ${response}`)
+  })
+});
