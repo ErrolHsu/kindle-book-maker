@@ -8,7 +8,6 @@ Vue.config.productionTip = false
 new Vue({
   render: h => h(App),
   data: {
-    a: 'aaaa'
   },
 
   methods: {

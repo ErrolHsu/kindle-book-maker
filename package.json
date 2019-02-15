@@ -9,10 +9,13 @@
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "convict": "^4.4.1",
     "electron-log": "^3.0.1",
+    "he": "^1.2.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.23",
+    "puppeteer-core": "^1.12.2",
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {

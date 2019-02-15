@@ -5,7 +5,7 @@ import * as path from 'path'
 import * as log from 'electron-log'
 import moment from 'moment-timezone'
 import { format as formatUrl } from 'url'
-import { call } from './test.js'
+import { PresetPage, call } from './test.js'
 import init from './init'
 
 log.transports.file.level = 'info';
@@ -82,4 +82,9 @@ ipcMain.on('test-build', (event, arg) => {
     console.log(arg)
     console.log(`response is ${response}`)
   })
+});
+
+ipcMain.on('test-screenshot', (event, arg) => {
+  console.log('截圖')
+  PresetPage();
 });

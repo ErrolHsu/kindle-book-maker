@@ -5,6 +5,11 @@
     <div v-on:click='hi'>
       xxxxxxxx
     </div>
+
+    <div v-on:click='screenshot'>
+      截圖
+    </div>
+
     <div href="#" id="drag"></div>
   </div>
 </template>
@@ -56,6 +61,10 @@ export default {
   methods: {
     hi: function() {
       ipcRenderer.send('test-build')
+    },
+
+    screenshot: function() {
+      ipcRenderer.send('test-screenshot')
     }
   }
 }
