@@ -7,6 +7,8 @@ import moment from 'moment-timezone'
 import { format as formatUrl } from 'url'
 import { PresetPage, call } from './test.js'
 import init from './init'
+import { Book } from './book_maker/book'
+import { UUBook } from './book_maker/uuBook'
 
 log.transports.file.level = 'info';
 log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s} {z}] [{level}] {text}';
@@ -77,11 +79,9 @@ app.on('ready', () => {
   })
 })
 
-ipcMain.on('test-build', (event, arg) => {
-  call().then((response) => {
-    console.log(arg)
-    console.log(`response is ${response}`)
-  })
+ipcMain.on('create-book', async (event, arg) => {
+  const uubook = new UUBook(arg.targetUrl)
+  await uubook.createBook();
 });
 
 ipcMain.on('test-screenshot', (event, arg) => {

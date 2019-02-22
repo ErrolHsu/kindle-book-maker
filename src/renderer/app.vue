@@ -2,13 +2,16 @@
   <div id="app">
     <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
     <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
-    <div v-on:click='hi'>
-      xxxxxxxx
+    <div>
+      <input v-model='targetUrl'></input>
+    </div>
+    <div v-on:click='createBook' style='cursor: pointer'>
+      createBook
     </div>
 
-    <div v-on:click='screenshot'>
+    <!-- <div v-on:click='screenshot'>
       截圖
-    </div>
+    </div> -->
 
     <div href="#" id="drag"></div>
   </div>
@@ -22,6 +25,11 @@ export default {
   name: 'app',
   components: {
     // HelloWorld
+  },
+  data () {
+    return {
+      targetUrl: ''
+    }
   },
   mounted() {
     console.log('oooo')
@@ -54,13 +62,10 @@ export default {
       return false;
     };
   },
-  data () {
-    return {
-    }
-  },
+
   methods: {
-    hi: function() {
-      ipcRenderer.send('test-build')
+    createBook: function() {
+      ipcRenderer.send('create-book', {targetUrl: this.targetUrl})
     },
 
     screenshot: function() {
