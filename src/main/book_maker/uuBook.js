@@ -20,6 +20,7 @@ class UUBook {
     this.source = source
     this.spider = {}
     this.urlObject = {}
+    this.uuid = ''
     this.name = ''
     this.lastPage = ''
     // 所有要爬的頁面路徑
@@ -42,6 +43,7 @@ class UUBook {
 
   initBookFolder() {
     return new Promise((resolve, reject) => {
+      this.uuid = uuidv4();
       const source = path.resolve(__dirname, '../../../scaffold')
       this.destination = `/Users/errol/pro/epub/${this.name}`
       mkdirp.sync(this.destination)
@@ -86,7 +88,7 @@ class UUBook {
 
   createContentOpf() {
     return new Promise((resolve, reject) => {
-      const uuid = uuidv4();
+
       let manifest = '';
       let spine = '';
       let newContent = '';
@@ -97,7 +99,7 @@ class UUBook {
 
       const template = fs.readFileSync(contentOpftemplatePath, 'utf8')
       newContent = template.replace(/{{name}}/, this.name)
-      newContent = newContent.replace(/{{uuid}}/, uuid)
+      newContent = newContent.replace(/{{uuid}}/, this.uuid)
       newContent = newContent.replace(/{{manifest}}/, manifest)
       newContent = newContent.replace(/{{spine}}/, spine)
 
@@ -118,7 +120,7 @@ class UUBook {
 
       const template = fs.readFileSync(tocNcxtemplatePath, 'utf8')
       newContent = template.replace(/{{name}}/, this.name)
-      newContent = newContent.replace(/{{uuid}}/, uuid)
+      newContent = newContent.replace(/{{uuid}}/, this.uuid)
       newContent = newContent.replace(/{{navPoint}}/, navPoint)
 
       const targetPath = path.resolve(this.destination, 'OEBPS/toc.ncx')

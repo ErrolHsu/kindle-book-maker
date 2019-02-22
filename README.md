@@ -1,10 +1,5 @@
 ### Todo
 
-* 爬蟲
-* 封裝成EPUB
-* 轉檔成.mobi
-* 推送到Kindle
-
 ### Development Scripts
 
 ```bash
