@@ -9,6 +9,7 @@ class Chapter {
     const $ = cheerio.load(html, {
       decodeEntities: false
     })
+
     this.$ = $
     $('img').remove()
     $('.quote').remove()

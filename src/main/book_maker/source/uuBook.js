@@ -7,17 +7,16 @@ import * as fs from 'fs'
 import mkdirp from 'mkdirp'
 import { ncp } from 'ncp'
 import { app } from 'electron'
-import { Spider } from './spider'
-import { Chapter } from './chapter'
-
+import { Spider } from '../spider'
+import { Chapter } from '../chapter'
 
 const wait = time => new Promise((resolve) => setTimeout(resolve, time)); 
-const contentOpftemplatePath = path.resolve(__filename, '../template/content.opf')
-const tocNcxtemplatePath = path.resolve(__filename, '../template/toc.ncx')
+const contentOpftemplatePath = path.resolve(__filename, '../../template/content.opf')
+const tocNcxtemplatePath = path.resolve(__filename, '../../template/toc.ncx')
 
 class UUBook {
-  constructor(source) {
-    this.source = source
+  constructor(targetUrl) {
+    this.targetUrl = targetUrl
     this.spider = {}
     this.urlObject = {}
     this.uuid = ''
@@ -30,21 +29,21 @@ class UUBook {
     this.destination = ''
   }
 
-  async createBook() {
+  async generate() {
     this.spider = new Spider();
     await this.spider.init();
     await this.getBookNameAndLastPage();
     await this.initBookFolder()
-    await this.getEachChapter(1, this.source)
+    await this.getEachChapter(1, this.targetUrl)
     await this.createContentOpf()
     await this.createToc()
-    console.log('DONE')
+    console.log('Epub generated')
   }
 
   initBookFolder() {
     return new Promise((resolve, reject) => {
       this.uuid = uuidv4();
-      const source = path.resolve(__dirname, '../../../scaffold')
+      const source = path.resolve(__dirname, '../../../../scaffold')
       this.destination = `/Users/errol/pro/epub/${this.name}`
       mkdirp.sync(this.destination)
       ncp(source, this.destination, function (err) {
@@ -58,7 +57,7 @@ class UUBook {
   }
 
   async getBookNameAndLastPage() {
-    const html = await this.spider.get(this.source)
+    const html = await this.spider.get(this.targetUrl)
     const $ = cheerio.load(html, {
       decodeEntities: false
     })
@@ -132,4 +131,4 @@ class UUBook {
 
 }
 
-export { UUBook };
+export default UUBook;
