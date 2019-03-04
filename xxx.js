@@ -1,32 +1,25 @@
 const fs = require('fs');
 const readline = require('readline');
 const { ncp } = require('ncp');
+const JSZip = require('jszip')
 
-async function processLineByLine() {
-  const fileStream = fs.createReadStream('/Users/errol/pro/tmp2/3.xhtml');
 
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
-  // Note: we use the crlfDelay option to recognize all instances of CR LF
-  // ('\r\n') in input.txt as a single line break.
-
-  for await (const line of rl) {
-    // Each line in input.txt will be successively available here as `line`.
-    console.log(`Line from file: ${line}`);
-  }
-}
 
 function xxx() {
-  const source = '/Users/errol/pro/kindle-maker/scaffold'
-  const destination = '/Users/errol/pro/epub/newbook'
-  ncp(source, destination, function (err) {
-    if (err) {
-      return console.error(err);
-    }
-    console.log('done!');
-   });
+  const zip = new JSZip();
+  zip.file("mimetype", "application/epub+zip", {compression: "STORE"});
+  zip.folder("META-INF").file('container.xml', fs.readFileSync('/Users/errol/Ebook/修真聊天群/META-INF/container.xml'), {compression: "DEFLATE"})
+  zip.folder("OEBPS").file('1.xhtml', fs.readFileSync('/Users/errol/Ebook/修真聊天群/OEBPS/1.xhtml'), {compression: "DEFLATE"})
+  zip.folder("OEBPS").file('2.xhtml', fs.readFileSync('/Users/errol/Ebook/修真聊天群/OEBPS/2.xhtml'), {compression: "DEFLATE"})
+  zip.folder("OEBPS").file('3.xhtml', fs.readFileSync('/Users/errol/Ebook/修真聊天群/OEBPS/3.xhtml'), {compression: "DEFLATE"})
+  zip.folder("OEBPS").file('page-template.xpgt', fs.readFileSync('/Users/errol/Ebook/修真聊天群/OEBPS/page-template.xpgt'), {compression: "DEFLATE"})
+  zip.folder("OEBPS").file('content.opf', fs.readFileSync('/Users/errol/Ebook/修真聊天群/OEBPS/content.opf'), {compression: "DEFLATE"})
+  zip.folder("OEBPS").file('stylesheet.css', fs.readFileSync('/Users/errol/Ebook/修真聊天群/OEBPS/stylesheet.css'), {compression: "DEFLATE"})
+  zip.folder("OEBPS").file('toc.ncx', fs.readFileSync('/Users/errol/Ebook/修真聊天群/OEBPS/toc.ncx'), {compression: "DEFLATE"})
+
+  zip.generateAsync({type:"nodebuffer"}).then(function(content) {
+    fs.writeFile("/Users/errol/Ebook/xxx.epub", content, function(err){/*...*/});
+  });
 }
 
 xxx()

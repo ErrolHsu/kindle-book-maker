@@ -83,6 +83,7 @@ ipcMain.on('create-book', async (event, arg) => {
   // await uubook.createBook();
   const book = new BookMaker(arg.targetUrl)
   await book.generate()
+  console.log('DONE~')
 });
 
 ipcMain.on('test-screenshot', (event, arg) => {

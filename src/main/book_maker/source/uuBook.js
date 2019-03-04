@@ -1,134 +1,84 @@
-import puppeteer from 'puppeteer-core'
 import cheerio from 'cheerio'
-import uuidv4 from 'uuid/v4';
-import { spawn } from 'child_process'
-import * as path from 'path'
-import * as fs from 'fs'
-import mkdirp from 'mkdirp'
-import { ncp } from 'ncp'
 import { app } from 'electron'
 import { Spider } from '../spider'
-import { Chapter } from '../chapter'
+import Epub from '../epub';
 
 const wait = time => new Promise((resolve) => setTimeout(resolve, time)); 
-const contentOpftemplatePath = path.resolve(__filename, '../../template/content.opf')
-const tocNcxtemplatePath = path.resolve(__filename, '../../template/toc.ncx')
 
 class UUBook {
-  constructor(targetUrl) {
-    this.targetUrl = targetUrl
+  constructor(firstPageUrl, type = 'mobi') {
+    this.firstPageUrl = firstPageUrl
+    this.lastPageUrl = ''
     this.spider = {}
-    this.urlObject = {}
-    this.uuid = ''
-    this.name = ''
-    this.lastPage = ''
-    // 所有要爬的頁面路徑
-    this.targetPath = []
+    this.epub = {}
     this.outline = []
-    // 輸出路徑
-    this.destination = ''
+    this.type = type
   }
 
   async generate() {
     this.spider = new Spider();
     await this.spider.init();
-    await this.getBookNameAndLastPage();
-    await this.initBookFolder()
-    await this.getEachChapter(1, this.targetUrl)
-    await this.createContentOpf()
-    await this.createToc()
-    console.log('Epub generated')
+    const bookInfo = await getBookInfo(this.spider, this.firstPageUrl);
+    const { name, author, lastPageUrl } = bookInfo;
+    this.lastPageUrl = lastPageUrl
+    this.epub = new Epub(name, author)
+    const epub = this.epub
+    await epub.init()
+    await this.createChapterRecursive(1, this.firstPageUrl)
+    await epub.createContentOpf()
+    await epub.createToc()
+    await epub.zip()
+    await epub.toMobi()
+    console.log('Book generated')
   }
 
-  initBookFolder() {
-    return new Promise((resolve, reject) => {
-      this.uuid = uuidv4();
-      const source = path.resolve(__dirname, '../../../../scaffold')
-      this.destination = `/Users/errol/pro/epub/${this.name}`
-      mkdirp.sync(this.destination)
-      ncp(source, this.destination, function (err) {
-        if (err) {
-          return console.error(err);
-        }
-        console.log('init done!');
-        resolve()
-       });
-    })
-  }
-
-  async getBookNameAndLastPage() {
-    const html = await this.spider.get(this.targetUrl)
-    const $ = cheerio.load(html, {
-      decodeEntities: false
-    })
-
-    const bookNameTag = $('.h1title .shuming a')
-    this.name = bookNameTag.attr('title')
-    this.lastPage = bookNameTag.attr('href')
-  }
-
-  async getEachChapter(n, url) {
+  async createChapterRecursive(n, targetUrl) {
     console.log(n)
-    console.log(url)
-    const html = await this.spider.get(url)
-    const chapter = new Chapter(html, n, this.destination)
-    await chapter.createChapterFile()
-    const outlineInfo = chapter.outLineInfo()
-    this.outline.push(outlineInfo)
+    console.log(targetUrl)
+    const html = await this.spider.get(targetUrl)
+    const contentObject = clearUpAndGetContent(html)
+    const { title, nextPageUrl, content } = contentObject
 
-    // if (outlineInfo.nextUrl !== '/b/86121/') {
-    if (outlineInfo.nextUrl !== this.lastPage) {
-      return this.getEachChapter(n + 1, `https://tw.uukanshu.com${outlineInfo.nextUrl}`)
+    this.epub.addChapter(n, title, content)
+    if (nextPageUrl !== this.lastPageUrl) {
+      return await this.createChapterRecursive(n + 1, `https://tw.uukanshu.com${nextPageUrl}`)
     } else {
       return
     }
-    
   }
 
-  createContentOpf() {
-    return new Promise((resolve, reject) => {
+}
 
-      let manifest = '';
-      let spine = '';
-      let newContent = '';
-      for (let chapter of this.outline) {
-        manifest += `  <item id="P${chapter.outline.chapterNum}" href="${chapter.outline.chapterNum}.xhtml" media-type="application/xhtml+xml" />\n`
-        spine += `  <itemref idref="P${chapter.outline.chapterNum}" />\n`
-      }
+// 清理並得到章節內文資訊
+function clearUpAndGetContent(html) {
+  const $ = cheerio.load(html, {
+    decodeEntities: false
+  })
+  $('img').remove()
+  $('.quote').remove()
+  $('blockquote').remove()
+  $('.ad_content').remove()
 
-      const template = fs.readFileSync(contentOpftemplatePath, 'utf8')
-      newContent = template.replace(/{{name}}/, this.name)
-      newContent = newContent.replace(/{{uuid}}/, this.uuid)
-      newContent = newContent.replace(/{{manifest}}/, manifest)
-      newContent = newContent.replace(/{{spine}}/, spine)
+  const title = $('#timu').text()
+  const nextPageUrl = $('#next').attr('href')
+  let content = $('#contentbox').html()
+  content = content.replace(/親,點擊進去,給個好評唄,分數越高更新越快,據說給新打滿分的最后都找到了漂亮的老婆哦!<br>手機站全新改版升級地址：，數據和書簽與電腦站同步，無廣告清新閱讀！<!--flagxbql-->/, '')
 
-      const targetPath = path.resolve(this.destination, 'OEBPS/content.opf')
-      fs.writeFile(targetPath, newContent, (err) => {
-        return resolve()
-      });
-    })
-  }
+  return { title, nextPageUrl, content }
+}
 
-  createToc() {
-    return new Promise((resolve, reject) => {
-      let navPoint = '';
-      let newContent = '';
-      for (let chapter of this.outline) {
-        navPoint += `  <navPoint id="chap${chapter.outline.chapterNum}" playOrder="${chapter.outline.chapterNum}">\n  <navLabel>\n  <text>${chapter.outline.title}</text>\n  </navLabel>\n  <content src="${chapter.outline.chapterNum}.xhtml"/>\n  </navPoint>\n`
-      }
+async function getBookInfo(spider, targetUrl) {
+  const html = await spider.get(targetUrl)
+  const $ = cheerio.load(html, {
+    decodeEntities: false
+  })
 
-      const template = fs.readFileSync(tocNcxtemplatePath, 'utf8')
-      newContent = template.replace(/{{name}}/, this.name)
-      newContent = newContent.replace(/{{uuid}}/, this.uuid)
-      newContent = newContent.replace(/{{navPoint}}/, navPoint)
+  const bookNameTag = $('.h1title .shuming a')
+  const lastPageUrl = bookNameTag.attr('href')
+  const name = bookNameTag.attr('title')
+  const author = $('.h1title .author').text().replace(/作者：/, '')
 
-      const targetPath = path.resolve(this.destination, 'OEBPS/toc.ncx')
-      fs.writeFile(targetPath, newContent, (err) => {
-        return resolve()
-      });
-    })
-  }
-
+  return {name, author, lastPageUrl}
 }
 
 export default UUBook;

@@ -3865,6 +3865,11 @@ ignore-walk@^3.0.1:
   dependencies:
     minimatch "^3.0.4"
 
+immediate@~3.0.5:
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/immediate/-/immediate-3.0.6.tgz#9db1dbd0faf8de6fbe0f5dd5e56bb606280de69b"
+  integrity sha1-nbHb0Pr43m++D13V5Wu2BigN5ps=
+
 import-lazy@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/import-lazy/-/import-lazy-2.1.0.tgz#05698e3d45c88e8d7e9d92cb0584e77f096f3e43"
@@ -4397,6 +4402,16 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
+jszip@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/jszip/-/jszip-3.2.0.tgz#1c179e8692777490ca4e9b8f3ced08f9b820da2c"
+  integrity sha512-4WjbsaEtBK/DHeDZOPiPw5nzSGLDEDDreFRDEgnoMwmknPjTqa+23XuYFk6NiGbeiAeZCctiQ/X/z0lQBmDVOQ==
+  dependencies:
+    lie "~3.3.0"
+    pako "~1.0.2"
+    readable-stream "~2.3.6"
+    set-immediate-shim "~1.0.1"
+
 killable@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/killable/-/killable-1.0.1.tgz#4c8ce441187a061c7474fb87ca08e2a638194892"
@@ -4449,6 +4464,13 @@ lcid@^2.0.0:
   integrity sha512-avPEb8P8EGnwXKClwsNUgryVjllcRqtMYa49NTsbQagYuT1DcXnl1915oxWjoyGrXR6zH/Y0Zc96xWsPcoDKeA==
   dependencies:
     invert-kv "^2.0.0"
+
+lie@~3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/lie/-/lie-3.3.0.tgz#dcf82dee545f46074daf200c7c1c5a08e0f40f6a"
+  integrity sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==
+  dependencies:
+    immediate "~3.0.5"
 
 lightercollective@^0.1.0:
   version "0.1.0"
@@ -5294,6 +5316,11 @@ package-json@^4.0.0:
     registry-auth-token "^3.0.1"
     registry-url "^3.0.3"
     semver "^5.1.0"
+
+pako@~1.0.2:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
+  integrity sha512-0DTvPVU3ed8+HNXOu5Bs+o//Mbdj9VNQMUOe9oKCwh8l0GNwpTDMKCWbRjgtD291AWnkAgkqA/LOnQS8AmS1tw==
 
 pako@~1.0.5:
   version "1.0.6"
@@ -6547,6 +6574,11 @@ set-blocking@^2.0.0, set-blocking@~2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/set-blocking/-/set-blocking-2.0.0.tgz#045f9782d011ae9a6803ddd382b24392b3d890f7"
   integrity sha1-BF+XgtARrppoA93TgrJDkrPYkPc=
+
+set-immediate-shim@~1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/set-immediate-shim/-/set-immediate-shim-1.0.1.tgz#4b2b1b27eb808a9f8dcc481a58e5e56f599f3f61"
+  integrity sha1-SysbJ+uAip+NzEgaWOXlb1mfP2E=
 
 set-value@^0.4.3:
   version "0.4.3"

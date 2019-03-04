@@ -10,6 +10,8 @@ class BookMaker {
     {
       case 'UUkanshu':
         return new UUBook(targetUrl);
+      case 'ck101':
+        return new CK101Book(targetUrl);
       default:
         return new CK101Book(targetUrl);
     }
@@ -38,7 +40,8 @@ function isUUkanshu(host) {
 }
 
 function isCk101(host) {
-  return false
+  const hostArray = host.split('.')
+  return hostArray.some(element => element === 'ck101')
 }
 
 export default BookMaker;
