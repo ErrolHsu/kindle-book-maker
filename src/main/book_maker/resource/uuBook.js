@@ -1,48 +1,56 @@
 import cheerio from 'cheerio'
 import { app } from 'electron'
+import opencc  from 'node-opencc';
 import { Spider } from '../spider'
 import Epub from '../epub';
 
-const wait = time => new Promise((resolve) => setTimeout(resolve, time)); 
+const wait = time => new Promise((resolve) => setTimeout(resolve, time));
 
 class UUBook {
-  constructor(firstPageUrl, type = 'mobi') {
-    this.firstPageUrl = firstPageUrl
-    this.lastPageUrl = ''
-    this.spider = {}
+  constructor(targetPageUrl, bookName, author, lastPageUrl) {
+    this.bookName = bookName
+    this.author = author
+    this.targetPageUrl = targetPageUrl
+    this.lastPageUrl = lastPageUrl
     this.epub = {}
-    this.outline = []
-    this.type = type
+    this.spider = new Spider()
   }
 
-  async generate() {
-    this.spider = new Spider();
+  static async fetch(targetPageUrl) {
+    const spider = new Spider();
+    await spider.init();
+    let bookInfo = await getBookInfo(spider, targetPageUrl);
+    bookInfo = bookInfo.map( e => opencc.simplifiedToTraditional(e) )
+    await spider.done()
+    return { targetPageUrl, bookName: bookInfo[0], author: bookInfo[1], lastPageUrl: bookInfo[2]};
+  }
+
+  async build() {
     await this.spider.init();
-    const bookInfo = await getBookInfo(this.spider, this.firstPageUrl);
-    const { name, author, lastPageUrl } = bookInfo;
-    this.lastPageUrl = lastPageUrl
-    this.epub = new Epub(name, author)
-    const epub = this.epub
+    this.epub = new Epub(this.bookName, this.author)
+    const { epub } = this
     await epub.init()
-    await this.createChapterRecursive(1, this.firstPageUrl)
+    await this._createChapterRecursive(1, this.targetPageUrl)
     await epub.createContentOpf()
     await epub.createToc()
     await epub.zip()
     await epub.toMobi()
+    await this.spider.done()
     console.log('Book generated')
   }
 
-  async createChapterRecursive(n, targetUrl) {
+  async _createChapterRecursive(n, currentPageUrl) {
     console.log(n)
-    console.log(targetUrl)
-    const html = await this.spider.get(targetUrl)
+    console.log(currentPageUrl)
+    const html = await this.spider.get(currentPageUrl)
     const contentObject = clearUpAndGetContent(html)
     const { title, nextPageUrl, content } = contentObject
 
     this.epub.addChapter(n, title, content)
     if (nextPageUrl !== this.lastPageUrl) {
-      return await this.createChapterRecursive(n + 1, `https://tw.uukanshu.com${nextPageUrl}`)
+      return await this._createChapterRecursive(n + 1, `https://tw.uukanshu.com${nextPageUrl}`)
     } else {
+      await this.spider.done()
       return
     }
   }
@@ -67,18 +75,18 @@ function clearUpAndGetContent(html) {
   return { title, nextPageUrl, content }
 }
 
-async function getBookInfo(spider, targetUrl) {
-  const html = await spider.get(targetUrl)
+async function getBookInfo(spider, targetPageUrl) {
+  const html = await spider.get(targetPageUrl)
   const $ = cheerio.load(html, {
     decodeEntities: false
   })
 
   const bookNameTag = $('.h1title .shuming a')
   const lastPageUrl = bookNameTag.attr('href')
-  const name = bookNameTag.attr('title')
+  const bookName = bookNameTag.attr('title')
   const author = $('.h1title .author').text().replace(/作者：/, '')
 
-  return {name, author, lastPageUrl}
+  return [bookName, author, lastPageUrl]
 }
 
 export default UUBook;

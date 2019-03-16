@@ -5014,6 +5014,11 @@ node-loader@^0.6.0:
   resolved "https://registry.yarnpkg.com/node-loader/-/node-loader-0.6.0.tgz#c797ef51095ed5859902b157f6384f6361e05ae8"
   integrity sha1-x5fvUQle1YWZArFX9jhPY2HgWug=
 
+node-opencc@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/node-opencc/-/node-opencc-2.0.1.tgz#8d53ab05907922ab632615886f24b4aca7567f85"
+  integrity sha512-SXhWq9oZU0V98xfxsJOEyfWRrcnec2f3zqKuugKta+UHmqtehNAd6QVYcEQ2CpwhmcRUVWaLovVLIIBm3jDXGg==
+
 node-pre-gyp@^0.10.0:
   version "0.10.3"
   resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.10.3.tgz#3070040716afdc778747b61b6887bf78880b80fc"

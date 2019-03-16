@@ -1,25 +1,20 @@
-import UUBook from './source/uuBook'
-import CK101Book from './source/ck101Book'
+import UUBook from './resource/uuBook'
+import CK101Book from './resource/ck101Book'
 
-class BookMaker {
-  constructor(targetUrl) {
-    const host = getHost(targetUrl)
-    const site = getSite(host)
+export default class BookMaker {
+  constructor(targetPageUrl, bookName, author, lastPageUrl ) {
+    const Resource = matchResource(targetPageUrl)
+    return new Resource(targetPageUrl, bookName, author, lastPageUrl)
+  }
 
-    switch(site)
-    {
-      case 'UUkanshu':
-        return new UUBook(targetUrl);
-      case 'ck101':
-        return new CK101Book(targetUrl);
-      default:
-        return new CK101Book(targetUrl);
-    }
+  static async fetch(targetPageUrl) {
+    const Resource = matchResource(targetPageUrl)
+    return await Resource.fetch(targetPageUrl)
   }
 }
 
-function getHost(targetUrl) {
-  const url = new URL(targetUrl)
+function getHost(targetPageUrl) {
+  const url = new URL(targetPageUrl)
   return url.host
 }
 
@@ -44,4 +39,16 @@ function isCk101(host) {
   return hostArray.some(element => element === 'ck101')
 }
 
-export default BookMaker;
+function matchResource(targetPageUrl) {
+  const host = getHost(targetPageUrl)
+  const site = getSite(host)
+  switch(site)
+  {
+    case 'UUkanshu':
+      return UUBook;
+    case 'ck101':
+      return CK101Book;
+    default:
+      return CK101Book;
+  }
+}

@@ -4,14 +4,16 @@ import mkdirp from 'mkdirp'
 import { ncp } from 'ncp'
 import JSZip from 'jszip'
 import uuidv4 from 'uuid/v4';
+import opencc  from 'node-opencc';
 import { spawn } from 'child_process'
 
 const templatePath = path.resolve(__filename, '../template')
 
-class Epub {
-  constructor(name, author, output) {
-    this.name = name
-    this.author = author
+export default class Epub {
+  constructor(name, author, translate  = true, output) {
+    this.translate = translate
+    this.name = this._translate(name)
+    this.author = this._translate(author)
     this.output = `/Users/errol/Ebook/${this.name}`
     this.uuid = uuidv4();
     this.chapters = []
@@ -35,17 +37,19 @@ class Epub {
     const chapterTemplatePath = path.resolve(templatePath, 'chapter.xhtml')
     return new Promise((resolve, reject) => {
       const chapterOutputPath = path.resolve(this.output, 'OEBPS', `${chapterNumber}.xhtml`)
-      const xhtml = fs.readFileSync(chapterTemplatePath, 'utf8')
+      let xhtml = fs.readFileSync(chapterTemplatePath, 'utf8')
                       .replace(/{{title}}/, `${title}`)
                       .replace(/{{contentTitle}}/, `<h2>${title}</h2><br /><br />`)
                       .replace(/{{body}}/, `<div>${content}</div>`)
                       .replace(/<br>/g, '<br \/>')
 
       this.chapters.push({
-        title,
+        title: this._translate(title),
         chapterNumber,
         chapterOutputPath
       })
+      // 繁簡轉換
+      xhtml = this._translate(xhtml)
       fs.writeFile(chapterOutputPath, xhtml, (err) => {
         return resolve()
       });
@@ -138,6 +142,12 @@ class Epub {
     })
   }
 
-}
+  _translate(text) {
+    if (this.translate) {
+      return opencc.simplifiedToTraditional(text);
+    }
 
-export default Epub;
+    return text;
+  }
+
+}

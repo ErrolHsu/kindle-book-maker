@@ -5,7 +5,7 @@ import * as path from 'path'
 import * as log from 'electron-log'
 import moment from 'moment-timezone'
 import { format as formatUrl } from 'url'
-import { PresetPage, call } from './test.js'
+import opencc  from 'node-opencc';
 import init from './init'
 import BookMaker from './book_maker/index'
 
@@ -78,15 +78,21 @@ app.on('ready', () => {
   })
 })
 
-ipcMain.on('create-book', async (event, arg) => {
-  // const uubook = new UUBook(arg.targetUrl)
-  // await uubook.createBook();
-  const book = new BookMaker(arg.targetUrl)
-  await book.generate()
-  console.log('DONE~')
+ipcMain.on('fetch-book', async (event, arg) => {
+  // const book = new BookMaker(arg.targetUrl)
+  const bookInfo = await BookMaker.fetch(arg.targetUrl)
+  event.sender.send('fetch-book-reply', bookInfo)
+  console.log(bookInfo)
 });
 
-ipcMain.on('test-screenshot', (event, arg) => {
-  console.log('截圖')
-  PresetPage();
+ipcMain.on('generate-book', async (event, arg) => {
+  const { targetPageUrl, bookName, author, lastPageUrl } = arg;
+  const book = new BookMaker(targetPageUrl, bookName, author, lastPageUrl )
+  book.build()
+  console.log('DONE~')
+})
+
+ipcMain.on('test', (event, arg) => {
+  const converted = opencc.simplifiedToTraditional()
+  console.log(converted);
 });

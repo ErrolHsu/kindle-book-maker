@@ -17,6 +17,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.23",
     "ncp": "^2.0.0",
+    "node-opencc": "^2.0.1",
     "puppeteer-core": "^1.12.2",
     "source-map-support": "^0.5.10",
     "uuid": "^3.3.2"

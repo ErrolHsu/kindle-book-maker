@@ -5,8 +5,26 @@
     <div>
       <input v-model='targetUrl'></input>
     </div>
-    <div v-on:click='createBook' style='cursor: pointer'>
-      createBook
+    <div v-on:click='fetchBook' style='cursor: pointer'>
+      fetchBook
+    </div>
+
+    <div>
+      書名: {{bookInfo.bookName}}
+    </div>
+
+    <div>
+      作者: {{bookInfo.author}}
+    </div>
+
+    <div @click='generateBook' style='cursor: pointer'>
+      抓取
+    </div>
+
+    <hr>
+
+    <div v-on:click='test' style='cursor: pointer'>
+      翻譯
     </div>
 
     <!-- <div v-on:click='screenshot'>
@@ -28,49 +46,68 @@ export default {
   },
   data () {
     return {
-      targetUrl: ''
+      targetUrl: '',
+      bookInfo: {
+        targetPageUrl: '',
+        bookName: '',
+        author: '',
+        lastPageUrl: '',
+      }
     }
   },
   mounted() {
-    console.log('oooo')
-    const holder = document.getElementById('drag')
+    // const self = this;
+    // const holder = document.getElementById('drag')
 
-    holder.ondragover = (event) => {
-      event.preventDefault();
-      event.dataTransfer.dropEffect = 'copy';
-      return false;
-    };
+    // holder.ondragover = (event) => {
+    //   event.preventDefault();
+    //   event.dataTransfer.dropEffect = 'copy';
+    //   return false;
+    // };
 
-    holder.ondragleave = (e) => {
-        e.preventDefault();
-        return false;
-    };
+    // holder.ondragleave = (e) => {
+    //     e.preventDefault();
+    //     return false;
+    // };
 
-    holder.ondragend = (e) => {
-        e.preventDefault();
-        return false;
-    };
+    // holder.ondragend = (e) => {
+    //     e.preventDefault();
+    //     return false;
+    // };
 
-    holder.ondrop = (e) => {
-      e.preventDefault();
+    // holder.ondrop = (e) => {
+    //   e.preventDefault();
 
-      for (let f of e.dataTransfer.files) {
-        console.log('File(s) you dragged here: ', f.path)
-        ipcRenderer.send('test-build', f.path)
-      }
+    //   for (let f of e.dataTransfer.files) {
+    //     console.log('File(s) you dragged here: ', f.path)
+    //     ipcRenderer.send('test-build', f.path)
+    //   }
 
-      return false;
-    };
+    //   return false;
+    // };
+
+    ipcRenderer.on('fetch-book-reply', (event, bookInfo) => {
+      console.log(event)
+      console.log(bookInfo)
+      // this.bookName = bookInfo.bookName
+      // this.author = bookInfo.author
+      this.bookInfo = Object.assign({}, bookInfo)
+    })
+
   },
 
   methods: {
-    createBook: function() {
-      ipcRenderer.send('create-book', {targetUrl: this.targetUrl})
+    fetchBook: function() {
+      ipcRenderer.send('fetch-book', {targetUrl: this.targetUrl})
     },
 
-    screenshot: function() {
-      ipcRenderer.send('test-screenshot')
-    }
+    generateBook: function() {
+      ipcRenderer.send('generate-book', this.bookInfo)
+    },
+
+    test: function() {
+      ipcRenderer.send('test')
+    },
   }
 }
 </script>
