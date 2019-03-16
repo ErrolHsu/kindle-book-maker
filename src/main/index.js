@@ -24,10 +24,10 @@ function currentDate() {
 }
 
 function createMainWindow() {
-  const window = new BrowserWindow()
+  const window = new BrowserWindow({ width: 800, height: 500 })
 
   if (isDevelopment) {
-    window.webContents.openDevTools()
+    // window.webContents.openDevTools()
   }
 
   if (isDevelopment) {

@@ -5,9 +5,11 @@
     <div>
       <input v-model='targetUrl'></input>
     </div>
-    <div v-on:click='fetchBook' style='cursor: pointer'>
-      fetchBook
+    <div v-on:click='fetchBook' class='btn mt-1'>
+      Fetch Book
     </div>
+
+    <hr>
 
     <div>
       書名: {{bookInfo.bookName}}
@@ -17,21 +19,20 @@
       作者: {{bookInfo.author}}
     </div>
 
-    <div @click='generateBook' style='cursor: pointer'>
-      抓取
+    <div @click='generateBook' class='btn mt-1'>
+      Build Book
     </div>
 
-    <hr>
 
-    <div v-on:click='test' style='cursor: pointer'>
+    <!-- <div v-on:click='test' style='cursor: pointer'>
       翻譯
-    </div>
+    </div> -->
 
     <!-- <div v-on:click='screenshot'>
       截圖
     </div> -->
 
-    <div href="#" id="drag"></div>
+    <!-- <div href="#" id="drag"></div> -->
   </div>
 </template>
 

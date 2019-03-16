@@ -1,0 +1,8 @@
+/* 按鈕  */
+.btn {
+  cursor: pointer;
+  display: inline-block;
+  padding: 5px 15px;
+  background: #2c2e3a;
+  color: #fff;
+}
