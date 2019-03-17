@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import * as path from 'path'
 import * as log from 'electron-log'
 import moment from 'moment-timezone'
@@ -24,6 +24,29 @@ function currentDate() {
 }
 
 function createMainWindow() {
+  if (process.platform === 'darwin') {
+    const template = [
+      {
+        label: "Application",
+        submenu: [
+          { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+        ]
+      },
+      {
+        label: "Edit",
+        submenu: [
+          { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+          { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+          { label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
+          { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
+          { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' },
+        ]
+      }
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+  } else {
+    Menu.setApplicationMenu(null)
+  }
   const window = new BrowserWindow({ width: 800, height: 400 })
 
   if (isDevelopment) {
@@ -51,7 +74,6 @@ function createMainWindow() {
       window.focus()
     })
   })
-
   return window
 }
 
@@ -82,13 +104,15 @@ ipcMain.on('fetch-book', async (event, arg) => {
   // const book = new BookMaker(arg.targetUrl)
   const bookInfo = await BookMaker.fetch(arg.targetUrl)
   event.sender.send('fetch-book-reply', bookInfo)
-  console.log(bookInfo)
+  log.info(bookInfo)
 });
 
 ipcMain.on('generate-book', async (event, arg) => {
   const { targetPageUrl, bookName, author, lastPageUrl } = arg;
   const book = new BookMaker(targetPageUrl, bookName, author, lastPageUrl )
-  book.build()
+  book.build().catch(err => {
+    log.error(err)
+  })
   console.log('DONE~')
 })
 

@@ -1,5 +1,6 @@
 import cheerio from 'cheerio'
 import { app } from 'electron'
+import * as log from 'electron-log'
 import opencc  from 'node-opencc';
 import { Spider } from '../spider'
 import Epub from '../epub';
@@ -26,26 +27,26 @@ class UUBook {
   }
 
   async build() {
-    await this.spider.init();
-    this.epub = new Epub(this.bookName, this.author)
-    const { epub } = this
-    await epub.init()
     try {
+      await this.spider.init();
+      this.epub = new Epub(this.bookName, this.author)
+      const { epub } = this
+      await epub.init()
       await this._createChapterRecursive(1, this.targetPageUrl)
+      await epub.createContentOpf()
+      await epub.createToc()
+      await epub.zip()
+      await epub.toMobi()
+      await this.spider.done()
+      log.info('Book generated')
     } catch(err) {
-      console.log(err);
+      log.error(err)
     }
-    await epub.createContentOpf()
-    await epub.createToc()
-    await epub.zip()
-    await epub.toMobi()
-    await this.spider.done()
-    console.log('Book generated')
   }
 
   async _createChapterRecursive(n, currentPageUrl) {
-    console.log(n)
-    console.log(currentPageUrl)
+    log.info(n)
+    log.info(currentPageUrl)
     const html = await this.spider.get(currentPageUrl)
     const contentObject = clearUpAndGetContent(html)
     const { title, nextPageUrl, content } = contentObject

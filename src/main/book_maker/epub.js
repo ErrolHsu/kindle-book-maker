@@ -1,5 +1,6 @@
 import * as path from 'path'
 import * as fs from 'fs'
+import * as log from 'electron-log'
 import mkdirp from 'mkdirp'
 import { ncp } from 'ncp'
 import JSZip from 'jszip'
@@ -25,7 +26,7 @@ export default class Epub {
       mkdirp.sync(this.output)
       ncp(scaffoldPath, this.output, function (err) {
         if (err) {
-          return console.error(err);
+          throw new Error(err)
         }
         console.log('init done!');
         resolve()
