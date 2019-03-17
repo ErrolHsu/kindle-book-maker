@@ -30,7 +30,11 @@ class UUBook {
     this.epub = new Epub(this.bookName, this.author)
     const { epub } = this
     await epub.init()
-    await this._createChapterRecursive(1, this.targetPageUrl)
+    try {
+      await this._createChapterRecursive(1, this.targetPageUrl)
+    } catch(err) {
+      console.log(err);
+    }
     await epub.createContentOpf()
     await epub.createToc()
     await epub.zip()
