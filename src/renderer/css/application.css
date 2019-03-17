@@ -1,7 +1,8 @@
 @import "display.css";
 @import "color.css";
 @import "btn.css";
+@import "transition.css";
 
-body {
+body div{
   box-sizing: border-box;
 }

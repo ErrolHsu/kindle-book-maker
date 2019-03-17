@@ -24,7 +24,7 @@ function currentDate() {
 }
 
 function createMainWindow() {
-  const window = new BrowserWindow({ width: 800, height: 500 })
+  const window = new BrowserWindow({ width: 800, height: 400 })
 
   if (isDevelopment) {
     // window.webContents.openDevTools()
