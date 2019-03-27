@@ -42,7 +42,6 @@
           targetPageUrl: '',
           bookName: '',
           author: '',
-          lastPageUrl: '',
         }
       }
     },

@@ -2,9 +2,9 @@ import UUBook from './resource/uuBook'
 import CK101Book from './resource/ck101Book'
 
 export default class BookMaker {
-  constructor(targetPageUrl, bookName, author, lastPageUrl ) {
+  constructor(targetPageUrl, bookName, author) {
     const Resource = matchResource(targetPageUrl)
-    return new Resource(targetPageUrl, bookName, author, lastPageUrl)
+    return new Resource(targetPageUrl, bookName, author)
   }
 
   static async fetch(targetPageUrl) {

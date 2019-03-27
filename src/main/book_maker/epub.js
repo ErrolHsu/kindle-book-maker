@@ -1,3 +1,4 @@
+import { app } from 'electron'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as log from 'electron-log'
@@ -8,21 +9,22 @@ import uuidv4 from 'uuid/v4';
 import opencc  from 'node-opencc';
 import { spawn } from 'child_process'
 
-const templatePath = path.resolve(__filename, '../template')
+const templatePath = path.resolve(__dirname, 'template')
+const outputPath = path.resolve(app.getPath('downloads'), 'kindle-book')
 
 export default class Epub {
-  constructor(name, author, translate  = true, output) {
+  constructor(name, author, translate  = true, output = outputPath) {
     this.translate = translate
     this.name = this._translate(name)
     this.author = this._translate(author)
-    this.output = `/Users/errol3264/Ebook/${this.name}`
+    this.output = path.resolve(output, this.name)
     this.uuid = uuidv4();
     this.chapters = []
   }
 
   init() {
     return new Promise((resolve, reject) => {
-      const scaffoldPath = path.resolve(__dirname, '../../../scaffold')
+      const scaffoldPath = path.resolve(__dirname, 'scaffold')
       mkdirp.sync(this.output)
       ncp(scaffoldPath, this.output, function (err) {
         if (err) {

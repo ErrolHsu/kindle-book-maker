@@ -108,8 +108,8 @@ ipcMain.on('fetch-book', async (event, arg) => {
 });
 
 ipcMain.on('generate-book', async (event, arg) => {
-  const { targetPageUrl, bookName, author, lastPageUrl } = arg;
-  const book = new BookMaker(targetPageUrl, bookName, author, lastPageUrl )
+  const { targetPageUrl, bookName, author } = arg;
+  const book = new BookMaker(targetPageUrl, bookName, author )
   book.build().catch(err => {
     log.error(err)
   })
