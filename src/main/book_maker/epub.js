@@ -15,7 +15,7 @@ export default class Epub {
     this.translate = translate
     this.name = this._translate(name)
     this.author = this._translate(author)
-    this.output = `/Users/errol/Ebook/${this.name}`
+    this.output = `/Users/errol3264/Ebook/${this.name}`
     this.uuid = uuidv4();
     this.chapters = []
   }

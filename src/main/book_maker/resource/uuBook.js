@@ -52,7 +52,7 @@ class UUBook {
     const { title, nextPageUrl, content } = contentObject
 
     this.epub.addChapter(n, title, content)
-    if (nextPageUrl !== this.lastPageUrl) {
+    if (nextPageUrl !== this.lastPageUrl && nextPageUrl !== undefined) {
       return await this._createChapterRecursive(n + 1, `https://tw.uukanshu.com${nextPageUrl}`)
     } else {
       await this.spider.done()
