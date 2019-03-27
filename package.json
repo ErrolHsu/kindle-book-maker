@@ -8,6 +8,74 @@
     "dist": "yarn compile && electron-builder",
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },
+  "build": {
+    "appId": "com.electron.kindleBookMaker",
+    "productName": "kindle-book-maker",
+    "copyright": "Copyright © 2019 ErrolHsu",
+    "directories": {
+      "output": "./releases/${platform}-${version}"
+    },
+    "mac": {
+      "files": [
+        "!after_all_artifact_build.js",
+        "!__tests__/**/*",
+        "!releases/**/*",
+        "!dist/**/*",
+        "!logs/**/*.txt",
+        "!logs/*.txt",
+        "!yarn-error.log",
+        "!README.md",
+        "!permission.json",
+        "!dev-app-update.yml",
+        "!dev-app-update.yml.example",
+        "!tmp/*"
+      ],
+      "extraFiles": [
+        {
+          "from": "./src/main/book_maker/scaffold",
+          "to": "extra_files/scaffold"
+        },
+        {
+          "from": "./src/main/book_maker/template",
+          "to": "extra_files/template"
+        },
+        {
+          "from": "./bin",
+          "to": "extra_files/bin"
+        }
+      ]
+    },
+    "win": {
+      "files": [
+        "!after_all_artifact_build.js",
+        "!__tests__/**/*",
+        "!releases/**/*",
+        "!dist/**/*",
+        "!logs/**/*.txt",
+        "!logs/*.txt",
+        "!yarn-error.log",
+        "!README.md",
+        "!permission.json",
+        "!dev-app-update.yml",
+        "!dev-app-update.yml.example",
+        "!tmp/*"
+      ],
+      "extraFiles": [
+        {
+          "from": "./src/main/book_maker/scaffold",
+          "to": "extra_files/scaffold"
+        },
+        {
+          "from": "./src/main/book_maker/template",
+          "to": "extra_files/template"
+        },
+        {
+          "from": "./bin",
+          "to": "extra_files/bin"
+        }
+      ]
+    }
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "convict": "^4.4.1",

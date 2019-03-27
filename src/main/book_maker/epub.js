@@ -9,7 +9,9 @@ import uuidv4 from 'uuid/v4';
 import opencc  from 'node-opencc';
 import { spawn } from 'child_process'
 
-const templatePath = path.resolve(__dirname, 'template')
+const kindlegen = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/bin/kindlegen') : path.resolve(__dirname, '../../../', 'bin/kindlegen')
+const scaffoldPath = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/scaffold') : path.resolve(__dirname, 'scaffold')
+const templatePath = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/template') : path.resolve(__dirname, 'template')
 const outputPath = path.resolve(app.getPath('downloads'), 'kindle-book')
 
 export default class Epub {
@@ -24,13 +26,12 @@ export default class Epub {
 
   init() {
     return new Promise((resolve, reject) => {
-      const scaffoldPath = path.resolve(__dirname, 'scaffold')
       mkdirp.sync(this.output)
       ncp(scaffoldPath, this.output, function (err) {
         if (err) {
           throw new Error(err)
         }
-        console.log('init done!');
+        log.info('init done!');
         resolve()
        });
     })
@@ -132,14 +133,12 @@ export default class Epub {
   toMobi() {
     return new Promise((resolve, reject) => {
       const epubPath = path.resolve(this.output, `${this.name}.epub`)
-      const kindlegen = path.resolve(__dirname, '../../../', 'bin/kindlegen')
-      console.log(kindlegen)
       let gen = spawn(kindlegen, [epubPath]);
       gen.stdout.pipe(process.stdout);
       gen.stderr.pipe(process.stderr);
     
       gen.on('close', function(code) {
-        console.log(code)
+        log.info(code)
         resolve(code);
       });
     })

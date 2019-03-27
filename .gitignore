@@ -1,5 +1,6 @@
 .DS_Store
 dist/
+releases/
 node_modules/
 thumbs.db
 src/main/test.js

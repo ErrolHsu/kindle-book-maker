@@ -113,7 +113,6 @@ ipcMain.on('generate-book', async (event, arg) => {
   book.build().catch(err => {
     log.error(err)
   })
-  console.log('DONE~')
 })
 
 ipcMain.on('test', (event, arg) => {
