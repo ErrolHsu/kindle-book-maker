@@ -3,6 +3,13 @@
 @import "btn.css";
 @import "transition.css";
 
+body {
+  height: 100vh;
+  width: 100vw;
+  padding: 0;
+  margin: 0;
+}
+
 body div{
   box-sizing: border-box;
 }

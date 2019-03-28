@@ -1,5 +1,6 @@
 import cheerio from 'cheerio'
 import { app } from 'electron'
+import * as path from 'path'
 import * as log from 'electron-log'
 import opencc  from 'node-opencc';
 import { Spider } from '../spider'
@@ -16,6 +17,7 @@ class UUBook {
     this.indexPageUrl = ''
     this.epub = {}
     this.spider = new Spider()
+    this.output = path.resolve(app.getPath('downloads'), 'kindle-book', bookName)
   }
 
   static async fetch(targetPageUrl) {
@@ -47,6 +49,7 @@ class UUBook {
     await epub.toMobi()
     await this.spider.done()
     log.info('Book generated')
+    return this.output
   }
 
   async _createChapterRecursive(n, currentPageUrl) {

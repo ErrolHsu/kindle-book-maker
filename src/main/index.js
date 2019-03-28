@@ -101,7 +101,6 @@ app.on('ready', () => {
 })
 
 ipcMain.on('fetch-book', async (event, arg) => {
-  // const book = new BookMaker(arg.targetUrl)
   const bookInfo = await BookMaker.fetch(arg.targetUrl)
   event.sender.send('fetch-book-reply', bookInfo)
   log.info(bookInfo)
@@ -110,7 +109,11 @@ ipcMain.on('fetch-book', async (event, arg) => {
 ipcMain.on('generate-book', async (event, arg) => {
   const { targetPageUrl, bookName, author } = arg;
   const book = new BookMaker(targetPageUrl, bookName, author )
-  book.build().catch(err => {
+  book.build()
+  .then((output) => {
+    event.sender.send('job-done', output)
+  })
+  .catch(err => {
     log.error(err)
   })
 })

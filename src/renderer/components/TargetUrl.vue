@@ -9,19 +9,27 @@
 
     <transition name="opacity">
       <div id='book-info' class='mt-2' v-show='bookInfoShow'>
-        <div class='info'>
-          <div>
-            書名： 
-            <input type="text" v-model="bookInfo.bookName">
-          </div>
 
-          <div>
-            作者： 
-            <input type="text" v-model="bookInfo.author">
+        <div id='get-book-box' v-show='getBookBoxShow'>
+          <div class='info'>
+            <div>
+              書名： 
+              <input type="text" v-model="bookInfo.bookName">
+            </div>
+
+            <div>
+              作者： 
+              <input type="text" v-model="bookInfo.author">
+            </div>
+          </div>
+          <div @click='generateBook' class='btn mt-1'>
+            BUILD BOOK
           </div>
         </div>
-        <div @click='generateBook' class='btn mt-1'>
-          Build Book
+
+        <div id='result-box' class='green' v-show='resultBoxShow'>
+          <span>Your ebook is now at: </span>
+          <span style='font-weight: bolder;'> {{output}}</span>
         </div>
       </div>
     </transition>
@@ -31,37 +39,51 @@
 
 <script>
   import { ipcRenderer } from  'electron'
+  import eventBus from '../eventBus'
 
   export default {
 
-    data () {
+    data() {
       return {
         targetUrl: '',
         bookInfoShow: false,
+        getBookBoxShow: false,
+        resultBoxShow: false,
         bookInfo: {
           targetPageUrl: '',
           bookName: '',
           author: '',
-        }
+        },
+        output: ''
       }
     },
 
     mounted() {
       ipcRenderer.on('fetch-book-reply', (event, bookInfo) => {
-        console.log(event)
-        console.log(bookInfo)
+        eventBus.$emit('end-loadding')
         this.bookInfo = Object.assign({}, bookInfo)
         this.bookInfoShow = true
+        this.getBookBoxShow = true
+        this.resultBoxShow = false
+      })
+
+      ipcRenderer.on('job-done', (event, output) => {
+        eventBus.$emit('end-loadding')
+        this.output = output
+        this.getBookBoxShow = false
+        this.resultBoxShow = true
       })
     },
 
     methods: {
       fetchBook: function() {
+        eventBus.$emit('loadding')
         this.bookInfoShow = false;
         ipcRenderer.send('fetch-book', {targetUrl: this.targetUrl})
       },
 
       generateBook: function() {
+        eventBus.$emit('loadding')
         ipcRenderer.send('generate-book', this.bookInfo)
       },
     }
@@ -75,6 +97,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding-top: 60px;
   }
 
   a {
@@ -125,4 +148,5 @@
     padding: 10px;
     font-size: 1rem;
   }
+
 </style>

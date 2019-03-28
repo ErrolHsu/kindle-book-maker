@@ -1,17 +1,20 @@
 <template>
   <div id="app">
+    <Loader></Loader>
     <TargetUrl></TargetUrl>
   </div>
 </template>
 
 <script>
-import TargetUrl from './components/TargetUrl.vue'
+import TargetUrl from './components/targetUrl.vue'
+import Loader from './components/loader.vue'
 import { ipcRenderer } from  'electron'
 
 export default {
   name: 'app',
   components: {
-    TargetUrl
+    TargetUrl,
+    Loader,
   },
   data() {
     return {
@@ -35,7 +38,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 
 :root {
