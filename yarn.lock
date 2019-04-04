@@ -3785,6 +3785,11 @@ htmlparser2@~3.3.0:
     domutils "1.1"
     readable-stream "1.0"
 
+htmltidy@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/htmltidy/-/htmltidy-0.0.6.tgz#1074e2b8ef1ac5aad1e16c3cb1478cf229989d68"
+  integrity sha1-EHTiuO8axarR4Ww8sUeM8imYnWg=
+
 http-deceiver@^1.2.7:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/http-deceiver/-/http-deceiver-1.2.7.tgz#fa7168944ab9a519d337cb0bec7284dc3e723d87"
