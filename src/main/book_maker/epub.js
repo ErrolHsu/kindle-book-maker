@@ -2,6 +2,7 @@ import { app } from 'electron'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as log from 'electron-log'
+import { tidy }  from 'htmltidy'
 import mkdirp from 'mkdirp'
 import { ncp } from 'ncp'
 import JSZip from 'jszip'
@@ -24,6 +25,28 @@ export default class Epub {
     this.chapters = []
   }
 
+  static tidyHtml(html) {
+    return new Promise((resolve, reject) => {
+      let tidyOpts = {
+        doctype: 'auto',
+        hideComments: false, //  multi word options can use a hyphen or "camel case"
+        outputXhtml: true,
+        indent: true
+      }
+
+      tidy(html, tidyOpts, (err, xhtml) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(xhtml)
+      })
+    })
+  }
+
+  static translate(text) {
+    return opencc.simplifiedToTraditional(text);
+  }
+
   init() {
     return new Promise((resolve, reject) => {
       mkdirp.sync(this.output)
@@ -41,11 +64,10 @@ export default class Epub {
     const chapterTemplatePath = path.resolve(templatePath, 'chapter.xhtml')
     return new Promise((resolve, reject) => {
       const chapterOutputPath = path.resolve(this.output, 'OEBPS', `${chapterNumber}.xhtml`)
-      let xhtml = fs.readFileSync(chapterTemplatePath, 'utf8')
+      let html = fs.readFileSync(chapterTemplatePath, 'utf8')
                       .replace(/{{title}}/, `${title}`)
                       .replace(/{{contentTitle}}/, `<h2>${title}</h2><br /><br />`)
                       .replace(/{{body}}/, `<div>${content}</div>`)
-                      .replace(/<br>/g, '<br \/>')
 
       this.chapters.push({
         title: this._translate(title),
@@ -53,10 +75,14 @@ export default class Epub {
         chapterOutputPath
       })
       // 繁簡轉換
-      xhtml = this._translate(xhtml)
-      fs.writeFile(chapterOutputPath, xhtml, (err) => {
-        return resolve()
-      });
+      if (this.translate) {
+        html = Epub.translate(html)
+      }
+      Epub.tidyHtml(html).then((xhtml) => {
+        fs.writeFile(chapterOutputPath, xhtml, (err) => {
+          return resolve()
+        });
+      })
     })
   }
 
