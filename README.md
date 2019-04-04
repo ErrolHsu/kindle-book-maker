@@ -3,6 +3,8 @@
 ### Development Scripts
 
 ```bash
+yarn install
+
 # run application in development mode
 yarn dev
 
