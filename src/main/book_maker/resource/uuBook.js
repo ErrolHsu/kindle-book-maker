@@ -59,7 +59,11 @@ class UUBook {
     const contentObject = clearUpAndGetContent(html)
     const { title, nextPageUrl, content } = contentObject
 
-    this.epub.addChapter(n, title, content)
+    try {
+      await this.epub.addChapter(n, title, content)
+    } catch(err) {
+      log.error(err)
+    }
     // 當下一頁是 index 或是 undefined 就停止
     if (nextPageUrl === this.indexPageUrl || nextPageUrl === undefined) {
       await this.spider.done()

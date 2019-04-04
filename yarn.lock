@@ -3785,10 +3785,10 @@ htmlparser2@~3.3.0:
     domutils "1.1"
     readable-stream "1.0"
 
-htmltidy@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/htmltidy/-/htmltidy-0.0.6.tgz#1074e2b8ef1ac5aad1e16c3cb1478cf229989d68"
-  integrity sha1-EHTiuO8axarR4Ww8sUeM8imYnWg=
+htmltidy2@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/htmltidy2/-/htmltidy2-0.3.0.tgz#1edfb74b8cd530cdcdc29ef547c849a651f0870b"
+  integrity sha512-mcQUlg/1Ynwi4kk0Db+61nbaMvzAuLUM1R+AL6O+Nx/Vb6q0IKc33BPKOSWeKNGn0OsjLkdUiNP7dP3RZv+n2g==
 
 http-deceiver@^1.2.7:
   version "1.2.7"

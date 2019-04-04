@@ -2,7 +2,7 @@ import { app } from 'electron'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as log from 'electron-log'
-import { tidy }  from 'htmltidy'
+import { tidy }  from 'htmltidy2'
 import mkdirp from 'mkdirp'
 import { ncp } from 'ncp'
 import JSZip from 'jszip'
@@ -13,7 +13,7 @@ import { spawn } from 'child_process'
 const kindlegen = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/bin/kindlegen') : path.resolve(__dirname, '../../../', 'bin/kindlegen')
 const scaffoldPath = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/scaffold') : path.resolve(__dirname, 'scaffold')
 const templatePath = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/template') : path.resolve(__dirname, 'template')
-const outputPath = path.resolve(app.getPath('downloads'), 'kindle-book')
+const outputPath = path.resolve(app.getPath('downloads'), 'kindle-books')
 
 export default class Epub {
   constructor(name, author, translate  = true, output = outputPath) {
@@ -31,11 +31,15 @@ export default class Epub {
         doctype: 'auto',
         hideComments: false, //  multi word options can use a hyphen or "camel case"
         outputXhtml: true,
+        charEncoding: 'raw',
+        showBodyOnly: true,
         indent: true
       }
 
       tidy(html, tidyOpts, (err, xhtml) => {
+        log.info('tidy...')
         if (err) {
+          log.error(err)
           reject(err)
         }
         resolve(xhtml)
@@ -62,12 +66,13 @@ export default class Epub {
 
   addChapter(chapterNumber, title, content) {
     const chapterTemplatePath = path.resolve(templatePath, 'chapter.xhtml')
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      let tidyContent = await Epub.tidyHtml(content)
       const chapterOutputPath = path.resolve(this.output, 'OEBPS', `${chapterNumber}.xhtml`)
-      let html = fs.readFileSync(chapterTemplatePath, 'utf8')
+      let xhtml = fs.readFileSync(chapterTemplatePath, 'utf8')
                       .replace(/{{title}}/, `${title}`)
                       .replace(/{{contentTitle}}/, `<h2>${title}</h2><br /><br />`)
-                      .replace(/{{body}}/, `<div>${content}</div>`)
+                      .replace(/{{body}}/, `<div>${tidyContent}</div>`)
 
       this.chapters.push({
         title: this._translate(title),
@@ -76,13 +81,13 @@ export default class Epub {
       })
       // 繁簡轉換
       if (this.translate) {
-        html = Epub.translate(html)
+        xhtml = Epub.translate(xhtml)
       }
-      Epub.tidyHtml(html).then((xhtml) => {
-        fs.writeFile(chapterOutputPath, xhtml, (err) => {
-          return resolve()
-        });
-      })
+
+      fs.writeFile(chapterOutputPath, xhtml, (err) => {
+        log.info(`chapter ${chapterNumber} done`)
+        return resolve()
+      });
     })
   }
 
