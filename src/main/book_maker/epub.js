@@ -1,18 +1,16 @@
 import { app } from 'electron'
 import * as path from 'path'
-import * as fs from 'fs'
+import fs from 'fs-extra'
 import * as log from 'electron-log'
-import { tidy }  from 'htmltidy2'
-import mkdirp from 'mkdirp'
-import { ncp } from 'ncp'
+import { tidy }  from './html_tidy'
 import JSZip from 'jszip'
 import uuidv4 from 'uuid/v4';
 import opencc  from 'node-opencc';
 import { spawn } from 'child_process'
+import { BIN_PATH, EXTRA_FILES_PATH } from '../helper/path_helper'
 
-const kindlegen = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/bin/kindlegen') : path.resolve(__dirname, '../../../', 'bin/kindlegen')
-const scaffoldPath = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/scaffold') : path.resolve(__dirname, 'scaffold')
-const templatePath = app.isPackaged ? path.join(app.getAppPath(), '../../', 'extra_files/template') : path.resolve(__dirname, 'template')
+const scaffoldPath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'scaffold') : path.resolve(__dirname, 'scaffold')
+const templatePath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'template') : path.resolve(__dirname, 'template')
 const outputPath = path.resolve(app.getPath('downloads'), 'kindle-books')
 
 export default class Epub {
@@ -21,6 +19,7 @@ export default class Epub {
     this.name = this._translate(name)
     this.author = this._translate(author)
     this.output = path.resolve(output, this.name)
+    this.tmp = path.resolve(this.output, 'tmp')
     this.uuid = uuidv4();
     this.chapters = []
   }
@@ -53,22 +52,31 @@ export default class Epub {
 
   init() {
     return new Promise((resolve, reject) => {
-      mkdirp.sync(this.output)
-      ncp(scaffoldPath, this.output, function (err) {
+      fs.ensureDirSync(this.output)
+      fs.ensureDirSync(this.tmp)
+      fs.copy(scaffoldPath, this.tmp, err => {
         if (err) {
           throw new Error(err)
         }
         log.info('init done!');
         resolve()
-       });
+      });
     })
+  }
+
+  async build() {
+    await this._createContentOpf()
+    await this._createToc()
+    await this._zip()
+    await this._toMobi()
+    // await this._clearTmpFile()
   }
 
   addChapter(chapterNumber, title, content) {
     const chapterTemplatePath = path.resolve(templatePath, 'chapter.xhtml')
     return new Promise(async (resolve, reject) => {
       let tidyContent = await Epub.tidyHtml(content)
-      const chapterOutputPath = path.resolve(this.output, 'OEBPS', `${chapterNumber}.xhtml`)
+      const chapterOutputPath = path.resolve(this.tmp, 'OEBPS', `${chapterNumber}.xhtml`)
       let xhtml = fs.readFileSync(chapterTemplatePath, 'utf8')
                       .replace(/{{title}}/, `${title}`)
                       .replace(/{{contentTitle}}/, `<h2>${title}</h2><br /><br />`)
@@ -80,9 +88,7 @@ export default class Epub {
         chapterOutputPath
       })
       // 繁簡轉換
-      if (this.translate) {
-        xhtml = Epub.translate(xhtml)
-      }
+      xhtml = this._translate(xhtml)
 
       fs.writeFile(chapterOutputPath, xhtml, (err) => {
         log.info(`chapter ${chapterNumber} done`)
@@ -91,7 +97,7 @@ export default class Epub {
     })
   }
 
-  createContentOpf() {
+  _createContentOpf() {
     const contentOpftemplatePath = path.resolve(templatePath, 'content.opf')
     return new Promise((resolve, reject) => {
       let manifest = '';
@@ -104,18 +110,19 @@ export default class Epub {
 
       const template = fs.readFileSync(contentOpftemplatePath, 'utf8')
       newContent = template.replace(/{{name}}/, this.name)
-      newContent = newContent.replace(/{{uuid}}/, this.uuid)
-      newContent = newContent.replace(/{{manifest}}/, manifest)
-      newContent = newContent.replace(/{{spine}}/, spine)
+                  .replace(/{{author}}/, this.author)
+                  .replace(/{{uuid}}/, this.uuid)
+                  .replace(/{{manifest}}/, manifest)
+                  .replace(/{{spine}}/, spine)
 
-      const targetPath = path.resolve(this.output, 'OEBPS/content.opf')
+      const targetPath = path.resolve(this.tmp, 'OEBPS/content.opf')
       fs.writeFile(targetPath, newContent, (err) => {
         return resolve()
       });
     })
   }
 
-  createToc() {
+  _createToc() {
     const tocNcxtemplatePath = path.resolve(templatePath, 'toc.ncx')
     return new Promise((resolve, reject) => {
       let navPoint = '';
@@ -129,27 +136,28 @@ export default class Epub {
       newContent = newContent.replace(/{{uuid}}/, this.uuid)
       newContent = newContent.replace(/{{navPoint}}/, navPoint)
 
-      const targetPath = path.resolve(this.output, 'OEBPS/toc.ncx')
+      const targetPath = path.resolve(this.tmp, 'OEBPS/toc.ncx')
       fs.writeFile(targetPath, newContent, (err) => {
         return resolve()
       });
     })
   }
 
-  zip() {
+  _zip() {
     return new Promise((resolve, reject) => {
       const zip = new JSZip();
       const output = this.output
+      const tmp = this.tmp
       const name = this.name
-      zip.file("mimetype", fs.readFileSync(`${output}/mimetype`), {compression: "STORE"});
-      zip.folder("META-INF").file('container.xml', fs.readFileSync(`${output}/META-INF/container.xml`), {compression: "DEFLATE"})
-      zip.folder("OEBPS").file('page-template.xpgt', fs.readFileSync(`${output}/OEBPS/page-template.xpgt`), {compression: "DEFLATE"})
-      zip.folder("OEBPS").file('content.opf', fs.readFileSync(`${output}/OEBPS/content.opf`), {compression: "DEFLATE"})
-      zip.folder("OEBPS").file('stylesheet.css', fs.readFileSync(`${output}/OEBPS/stylesheet.css`), {compression: "DEFLATE"})
-      zip.folder("OEBPS").file('toc.ncx', fs.readFileSync(`${output}/OEBPS/toc.ncx`), {compression: "DEFLATE"})
+      zip.file("mimetype", fs.readFileSync(`${tmp}/mimetype`), {compression: "STORE"});
+      zip.folder("META-INF").file('container.xml', fs.readFileSync(`${tmp}/META-INF/container.xml`), {compression: "DEFLATE"})
+      zip.folder("OEBPS").file('page-template.xpgt', fs.readFileSync(`${tmp}/OEBPS/page-template.xpgt`), {compression: "DEFLATE"})
+      zip.folder("OEBPS").file('content.opf', fs.readFileSync(`${tmp}/OEBPS/content.opf`), {compression: "DEFLATE"})
+      zip.folder("OEBPS").file('stylesheet.css', fs.readFileSync(`${tmp}/OEBPS/stylesheet.css`), {compression: "DEFLATE"})
+      zip.folder("OEBPS").file('toc.ncx', fs.readFileSync(`${tmp}/OEBPS/toc.ncx`), {compression: "DEFLATE"})
 
       for (let chapter of this.chapters) {
-        zip.folder("OEBPS").file(`${chapter.chapterNumber}.xhtml`, fs.readFileSync(`${output}/OEBPS/${chapter.chapterNumber}.xhtml`), {compression: "DEFLATE"})
+        zip.folder("OEBPS").file(`${chapter.chapterNumber}.xhtml`, fs.readFileSync(`${tmp}/OEBPS/${chapter.chapterNumber}.xhtml`), {compression: "DEFLATE"})
       }
 
       zip.generateAsync({type:"nodebuffer"}).then(function(content) {
@@ -161,8 +169,9 @@ export default class Epub {
     })
   }
 
-  toMobi() {
+  _toMobi() {
     return new Promise((resolve, reject) => {
+      const kindlegen = path.join(BIN_PATH, 'kindlegen')
       const epubPath = path.resolve(this.output, `${this.name}.epub`)
       let gen = spawn(kindlegen, [epubPath]);
       gen.stdout.pipe(process.stdout);
@@ -175,11 +184,22 @@ export default class Epub {
     })
   }
 
+  _clearTmpFile() {
+    return new Promise((resolve, reject) => {
+      fs.remove(this.tmp, err => {
+        if (err) {
+          log.error(err)
+        }
+        log.info('clear tmp file')
+        resolve()
+      })
+    })
+  }
+
   _translate(text) {
     if (this.translate) {
       return opencc.simplifiedToTraditional(text);
     }
-
     return text;
   }
 

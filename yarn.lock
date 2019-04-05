@@ -3358,7 +3358,7 @@ fs-extra@^4.0.1:
     jsonfile "^4.0.0"
     universalify "^0.1.0"
 
-fs-extra@^7.0.0:
+fs-extra@^7.0.0, fs-extra@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
   integrity sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==
@@ -3784,11 +3784,6 @@ htmlparser2@~3.3.0:
     domhandler "2.1"
     domutils "1.1"
     readable-stream "1.0"
-
-htmltidy2@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/htmltidy2/-/htmltidy2-0.3.0.tgz#1edfb74b8cd530cdcdc29ef547c849a651f0870b"
-  integrity sha512-mcQUlg/1Ynwi4kk0Db+61nbaMvzAuLUM1R+AL6O+Nx/Vb6q0IKc33BPKOSWeKNGn0OsjLkdUiNP7dP3RZv+n2g==
 
 http-deceiver@^1.2.7:
   version "1.2.7"
@@ -4967,11 +4962,6 @@ ncname@1.0.x:
   integrity sha1-W1etGLHKCShk72Kwse2BlPODtxw=
   dependencies:
     xml-char-classes "^1.0.0"
-
-ncp@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/ncp/-/ncp-2.0.0.tgz#195a21d6c46e361d2fb1281ba38b91e9df7bdbb3"
-  integrity sha1-GVoh1sRuNh0vsSgbo4uR6d9727M=
 
 needle@^2.2.1:
   version "2.2.4"

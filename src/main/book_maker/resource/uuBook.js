@@ -43,10 +43,7 @@ class UUBook {
       log.error(err)
     }
 
-    await epub.createContentOpf()
-    await epub.createToc()
-    await epub.zip()
-    await epub.toMobi()
+    await epub.build()
     await this.spider.done()
     log.info('Book generated')
     return this.output
