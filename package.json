@@ -1,6 +1,8 @@
 {
   "name": "kindle-book-maker",
-  "version": "1.0.0",
+  "author": "Errol Hsu",
+  "description": "spider & build eBook",
+  "version": "1.0.1",
   "license": "MIT",
   "scripts": {
     "dev": "electron-webpack dev",
@@ -16,6 +18,7 @@
       "output": "./releases/${platform}-${version}"
     },
     "mac": {
+      "target": "zip",
       "files": [
         "!after_all_artifact_build.js",
         "!__tests__/**/*",
