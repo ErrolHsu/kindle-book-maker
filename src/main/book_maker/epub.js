@@ -14,7 +14,7 @@ const templatePath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'template') : 
 const outputPath = path.resolve(app.getPath('downloads'), 'kindle-books')
 
 export default class Epub {
-  constructor(name, author, translate  = true, output = outputPath) {
+  constructor(name, author, output = outputPath, translate  = true) {
     this.translate = translate
     this.name = this._translate(name)
     this.author = this._translate(author)

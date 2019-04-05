@@ -17,7 +17,7 @@ class UUBook {
     this.indexPageUrl = ''
     this.epub = {}
     this.spider = new Spider()
-    this.output = path.resolve(app.getPath('downloads'), 'kindle-book', bookName)
+    this.output = path.resolve(app.getPath('downloads'), 'kindle-books', bookName)
   }
 
   static async fetch(targetPageUrl) {
@@ -33,7 +33,7 @@ class UUBook {
     await this.spider.init();
     const bookInfo = await getBookInfo(this.spider, this.targetPageUrl);
     this.indexPageUrl = bookInfo[2]
-    this.epub = new Epub(this.bookName, this.author)
+    this.epub = new Epub(this.bookName, this.author, this.output)
     const { epub } = this
     await epub.init()
 
