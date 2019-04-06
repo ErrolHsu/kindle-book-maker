@@ -6,6 +6,9 @@
           {{message}}
         </div>
       </div>
+      <div @click='close' class='pointer close'>
+        <font-awesome-icon icon="times"></font-awesome-icon>
+      </div>
     </div>
   </div>
 </template>
@@ -28,14 +31,22 @@
         this.addMessage(data)
       })
 
+      eventBus.$on('msg-close', (data) => {
+        this.show = false;
+      })
+
     },
 
     methods: {
       addMessage(data) {
         this.messages.push(data)
-        if (this.messages.length > 16) {
+        if (this.messages.length > 15) {
           this.messages.shift()
         }
+      },
+
+      close() {
+        this.show = false;
       },
 
     }
@@ -51,14 +62,27 @@
     width: 50%;
     height: 100%;
     z-index: 60;
-    padding-top: 20px;
-    padding-left: 20px;
+    padding-top: 15px;
   }
 
   #message-content {
     text-align: left;
+    padding-left: 15px;
     color: #fff;
     font-size: 14px;
+  }
+
+  .close {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 8px 0;
+    background: rgb(75, 21, 21, 0.5);
+    color: #fff;
+  }
+
+  .close:hover {
+    background: rgb(75, 21, 21, 0.6);
   }
 
 </style>

@@ -3,7 +3,10 @@
     <div>
       <form class="form">
         <input v-model='targetUrl' class="form-field" placeholder="Your Target URL" />
-        <button v-on:click='fetchBook' type="button" class="btn inside uppercase">Fetch</button>
+        <button v-on:click='fetchBook' type="button" class="btn inside uppercase">
+          <font-awesome-icon icon="dot-circle"></font-awesome-icon>
+          Fetch
+        </button>
       </form>
     </div>
 
@@ -23,6 +26,7 @@
             </div>
           </div>
           <div @click='generateBook' class='btn mt-1'>
+            <font-awesome-icon icon="tools"></font-awesome-icon>
             BUILD BOOK
           </div>
         </div>
@@ -129,7 +133,7 @@
   }
 
   #book-info {
-    width: 645px;
+    width: 665px;
     background: #fff;
     color: #555;
     box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1);
