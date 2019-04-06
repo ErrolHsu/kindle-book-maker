@@ -8,6 +8,7 @@ import uuidv4 from 'uuid/v4';
 import opencc  from 'node-opencc';
 import { spawn } from 'child_process'
 import { BIN_PATH, EXTRA_FILES_PATH } from '../helper/path_helper'
+import { logMsg } from '../helper/logger'
 
 const scaffoldPath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'scaffold') : path.resolve(__dirname, 'scaffold')
 const templatePath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'template') : path.resolve(__dirname, 'template')
@@ -65,7 +66,13 @@ export default class Epub {
   }
 
   async build() {
-    await this._createContentOpf()
+    try {
+      await this._createContentOpf()
+    } catch(err) {
+      if (this.chapters.length === 0) {
+        return
+      }
+    }
     await this._createToc()
     await this._zip()
     await this._toMobi()
@@ -74,6 +81,7 @@ export default class Epub {
 
   addChapter(chapterNumber, title, content) {
     const chapterTemplatePath = path.resolve(templatePath, 'chapter.xhtml')
+    const zhTitle = this._translate(title)
     return new Promise(async (resolve, reject) => {
       let tidyContent = await Epub.tidyHtml(content)
       const chapterOutputPath = path.resolve(this.tmp, 'OEBPS', `${chapterNumber}.xhtml`)
@@ -83,7 +91,7 @@ export default class Epub {
                       .replace(/{{body}}/, `<div>${tidyContent}</div>`)
 
       this.chapters.push({
-        title: this._translate(title),
+        title: zhTitle,
         chapterNumber,
         chapterOutputPath
       })
@@ -91,13 +99,14 @@ export default class Epub {
       xhtml = this._translate(xhtml)
 
       fs.writeFile(chapterOutputPath, xhtml, (err) => {
-        log.info(`chapter ${chapterNumber} done`)
+        logMsg(`Chap ${chapterNumber} - ${zhTitle} / 已完成`)
         return resolve()
       });
     })
   }
 
   _createContentOpf() {
+    logMsg('Create ContentOpf ...')
     const contentOpftemplatePath = path.resolve(templatePath, 'content.opf')
     return new Promise((resolve, reject) => {
       let manifest = '';
@@ -123,6 +132,7 @@ export default class Epub {
   }
 
   _createToc() {
+    logMsg('Create Toc ...')
     const tocNcxtemplatePath = path.resolve(templatePath, 'toc.ncx')
     return new Promise((resolve, reject) => {
       let navPoint = '';
@@ -144,6 +154,7 @@ export default class Epub {
   }
 
   _zip() {
+    logMsg('Create Epub ...')
     return new Promise((resolve, reject) => {
       const zip = new JSZip();
       const output = this.output
@@ -170,6 +181,7 @@ export default class Epub {
   }
 
   _toMobi() {
+    logMsg('Create Mobi ...')
     return new Promise((resolve, reject) => {
       const kindlegen = path.join(BIN_PATH, 'kindlegen')
       const epubPath = path.resolve(this.output, `${this.name}.epub`)
@@ -185,6 +197,7 @@ export default class Epub {
   }
 
   _clearTmpFile() {
+    logMsg('Clear tmp file ...')
     return new Promise((resolve, reject) => {
       fs.remove(this.tmp, err => {
         if (err) {

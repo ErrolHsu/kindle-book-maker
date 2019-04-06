@@ -5,6 +5,7 @@ import * as log from 'electron-log'
 import opencc  from 'node-opencc';
 import { Spider } from '../spider'
 import Epub from '../epub';
+import { logMsg } from '../../helper/logger'
 
 const wait = time => new Promise((resolve) => setTimeout(resolve, time));
 
@@ -17,7 +18,7 @@ class UUBook {
     this.indexPageUrl = ''
     this.epub = {}
     this.spider = new Spider()
-    this.output = path.resolve(app.getPath('downloads'), 'eBooks', bookName)
+    this.output = path.resolve(app.getPath('downloads'), 'eBooks')
   }
 
   static async fetch(targetPageUrl) {
@@ -45,13 +46,13 @@ class UUBook {
 
     await epub.build()
     await this.spider.done()
-    log.info('Book generated')
+    logMsg('電子書製作完成。')
     return this.output
   }
 
   async _createChapterRecursive(n, currentPageUrl) {
-    log.info(n)
-    log.info(currentPageUrl)
+    logMsg(`Get Chap ${n} ...`)
+    logMsg(currentPageUrl)
     const html = await this.spider.get(currentPageUrl)
     const contentObject = clearUpAndGetContent(html)
     const { title, nextPageUrl, content } = contentObject

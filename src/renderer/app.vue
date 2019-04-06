@@ -1,19 +1,24 @@
 <template>
   <div id="app">
     <Loader></Loader>
-    <TargetUrl></TargetUrl>
+    <Message></Message>
+    <MainContent></MainContent>
   </div>
 </template>
 
 <script>
-import TargetUrl from './components/targetUrl.vue'
-import Loader from './components/loader.vue'
 import { ipcRenderer } from  'electron'
+import eventBus from './eventBus'
+// components
+import MainContent from './components/mainContent.vue'
+import Message from './components/message.vue'
+import Loader from './components/loader.vue'
 
 export default {
   name: 'app',
   components: {
-    TargetUrl,
+    MainContent,
+    Message,
     Loader,
   },
   data() {
@@ -21,6 +26,9 @@ export default {
     }
   },
   mounted() {
+    ipcRenderer.on('msg', (event, data) => {
+      eventBus.$emit('msg', data)
+    })
   },
 
   methods: {
