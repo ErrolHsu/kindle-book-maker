@@ -51,8 +51,7 @@ class UUBook {
   }
 
   async _createChapterRecursive(n, currentPageUrl) {
-    logMsg(`Get Chap ${n} ...`)
-    logMsg(currentPageUrl)
+    logMsg(`Get ${currentPageUrl} ...`)
     const html = await this.spider.get(currentPageUrl)
     const contentObject = clearUpAndGetContent(html)
     const { title, nextPageUrl, content } = contentObject
