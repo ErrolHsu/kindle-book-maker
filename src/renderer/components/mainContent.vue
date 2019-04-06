@@ -27,7 +27,7 @@
           </div>
           <div @click='generateBook' class='btn mt-1'>
             <font-awesome-icon icon="tools"></font-awesome-icon>
-            BUILD BOOK
+            BUILD EBOOK
           </div>
         </div>
 

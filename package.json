@@ -49,6 +49,7 @@
       ]
     },
     "win": {
+      "target": "zip",
       "files": [
         "!after_all_artifact_build.js",
         "!__tests__/**/*",

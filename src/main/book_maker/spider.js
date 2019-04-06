@@ -86,7 +86,7 @@ class Spider {
     return this.page;
   }
 
-  async get(path) {
+  async get(path, wait) {
     let retry = 0;
     try {
       if (this.page.historyPages > 50) {
@@ -96,7 +96,9 @@ class Spider {
 
       const { page } = this
       await page.goto(path);
-      await page.waitForSelector( '#contentbox', { visible : true } );
+      if (wait) {
+        await page.waitForSelector( wait, { visible : true } );
+      }
       const html = await page.content();
       // page.removeAllListeners()
       // await page.close()
@@ -109,7 +111,9 @@ class Spider {
 
         retry += 1
         await this.page.goto(path);
-        await this.page.waitForSelector( '#contentbox', { visible : true } );
+        if (wait) {
+          await page.waitForSelector( wait, { visible : true } );
+        }
         const html = await this.page.content();
       } else {
         throw err

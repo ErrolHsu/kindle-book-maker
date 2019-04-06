@@ -99,7 +99,7 @@ export default class Epub {
       xhtml = this._translate(xhtml)
 
       fs.writeFile(chapterOutputPath, xhtml, (err) => {
-        logMsg(`Chap ${chapterNumber} - ${zhTitle} / 已完成`)
+        logMsg(`${zhTitle} / done`)
         return resolve()
       });
     })

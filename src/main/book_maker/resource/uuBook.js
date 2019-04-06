@@ -52,7 +52,7 @@ class UUBook {
 
   async _createChapterRecursive(n, currentPageUrl) {
     logMsg(`Get ${currentPageUrl} ...`)
-    const html = await this.spider.get(currentPageUrl)
+    const html = await this.spider.get(currentPageUrl, '#contentbox')
     const contentObject = clearUpAndGetContent(html)
     const { title, nextPageUrl, content } = contentObject
 
@@ -84,6 +84,7 @@ function clearUpAndGetContent(html) {
 
   const title = $('#timu').text()
   const nextPageUrl = $('#next').attr('href')
+  // remove UUxxxxxxxx.com
   let content = $('#contentbox').html()
                 .replace(/[UuＵｕ][UuＵｕ].{1,20}[ｃcCＣ][oｏＯO][mｍMＭ]/igm, '')
 
@@ -91,17 +92,17 @@ function clearUpAndGetContent(html) {
 }
 
 async function getBookInfo(spider, targetPageUrl) {
-  const html = await spider.get(targetPageUrl)
+  const html = await spider.get(targetPageUrl, '#contentbox')
   const $ = cheerio.load(html, {
     decodeEntities: false
   })
 
   const bookNameTag = $('.h1title .shuming a')
-  const lastPageUrl = bookNameTag.attr('href')
+  const indexPageUrl = bookNameTag.attr('href')
   const bookName = bookNameTag.attr('title')
   const author = $('.h1title .author').text().replace(/作者：/, '')
 
-  return [bookName, author, lastPageUrl]
+  return [bookName, author, indexPageUrl]
 }
 
 export default UUBook;
