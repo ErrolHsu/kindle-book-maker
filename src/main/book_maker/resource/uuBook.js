@@ -17,7 +17,7 @@ class UUBook {
     this.indexPageUrl = ''
     this.epub = {}
     this.spider = new Spider()
-    this.output = path.resolve(app.getPath('downloads'), 'kindle-books', bookName)
+    this.output = path.resolve(app.getPath('downloads'), 'eBooks', bookName)
   }
 
   static async fetch(targetPageUrl) {
@@ -85,6 +85,7 @@ function clearUpAndGetContent(html) {
   const title = $('#timu').text()
   const nextPageUrl = $('#next').attr('href')
   let content = $('#contentbox').html()
+                .replace(/[UuＵｕ][UuＵｕ].{1,20}[ｃcCＣ][oｏＯO][mｍMＭ]/igm, '')
 
   return { title, nextPageUrl, content }
 }

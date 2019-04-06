@@ -11,10 +11,10 @@ import { BIN_PATH, EXTRA_FILES_PATH } from '../helper/path_helper'
 
 const scaffoldPath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'scaffold') : path.resolve(__dirname, 'scaffold')
 const templatePath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'template') : path.resolve(__dirname, 'template')
-const outputPath = path.resolve(app.getPath('downloads'), 'kindle-books')
+const defaultOutputPath = path.resolve(app.getPath('downloads'), 'eBooks')
 
 export default class Epub {
-  constructor(name, author, output = outputPath, translate  = true) {
+  constructor(name, author, output = defaultOutputPath, translate  = true) {
     this.translate = translate
     this.name = this._translate(name)
     this.author = this._translate(author)
