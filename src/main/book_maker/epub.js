@@ -70,7 +70,7 @@ export default class Epub {
     await this._createToc()
     await this._zip()
     await this._toMobi()
-    // await this._clearTmpFile()
+    await this._clearTmpFile()
     return this.output
   }
 
