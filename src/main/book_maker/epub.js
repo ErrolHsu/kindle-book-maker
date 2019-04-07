@@ -8,7 +8,7 @@ import uuidv4 from 'uuid/v4';
 import opencc  from 'node-opencc';
 import { spawn } from 'child_process'
 import { BIN_PATH, EXTRA_FILES_PATH } from '../helper/path_helper'
-import { logMsg } from '../helper/logger'
+import { logMsg } from '../helper/message'
 
 const scaffoldPath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'scaffold') : path.resolve(__dirname, 'scaffold')
 const templatePath = app.isPackaged ? path.join(EXTRA_FILES_PATH, 'template') : path.resolve(__dirname, 'template')

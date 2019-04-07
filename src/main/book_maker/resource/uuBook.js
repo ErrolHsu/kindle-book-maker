@@ -5,7 +5,7 @@ import * as log from 'electron-log'
 import opencc  from 'node-opencc';
 import { Spider } from '../spider'
 import Epub from '../epub';
-import { logMsg } from '../../helper/logger'
+import { logMsg } from '../../helper/message'
 
 const wait = time => new Promise((resolve) => setTimeout(resolve, time));
 
@@ -24,10 +24,15 @@ class UUBook {
   static async fetch(targetPageUrl) {
     const spider = new Spider();
     await spider.init();
-    let bookInfo = await getBookInfo(spider, targetPageUrl);
-    bookInfo = bookInfo.map( e => opencc.simplifiedToTraditional(e) )
-    await spider.done()
-    return { targetPageUrl, bookName: bookInfo[0], author: bookInfo[1] };
+    try {
+      let bookInfo = await getBookInfo(spider, targetPageUrl);
+      bookInfo = bookInfo.map( e => opencc.simplifiedToTraditional(e) )
+      return { targetPageUrl, bookName: bookInfo[0], author: bookInfo[1] };
+    } catch(err) {
+      throw err
+    } finally {
+      await spider.done()
+    }
   }
 
   async build() {
@@ -52,7 +57,7 @@ class UUBook {
 
   async _createChapterRecursive(n, currentPageUrl) {
     logMsg(`Get ${currentPageUrl} ...`)
-    const html = await this.spider.get(currentPageUrl, '#contentbox')
+    const html = await this.spider.get(currentPageUrl, {wait: '#contentbox', js: false})
     const contentObject = clearUpAndGetContent(html)
     const { title, nextPageUrl, content } = contentObject
 
@@ -61,6 +66,7 @@ class UUBook {
     } catch(err) {
       log.error(err)
     }
+    // 已完結的書下一頁會是 undefined，未完結的會是index頁
     // 當下一頁是 index 或是 undefined 就停止
     if (nextPageUrl === this.indexPageUrl || nextPageUrl === undefined) {
       await this.spider.done()
@@ -92,17 +98,26 @@ function clearUpAndGetContent(html) {
 }
 
 async function getBookInfo(spider, targetPageUrl) {
-  const html = await spider.get(targetPageUrl, '#contentbox')
-  const $ = cheerio.load(html, {
-    decodeEntities: false
-  })
+  try {
+    const html = await spider.get(targetPageUrl, {wait: '#contentbox', js: false})
+    const $ = cheerio.load(html, {
+      decodeEntities: false
+    })
 
-  const bookNameTag = $('.h1title .shuming a')
-  const indexPageUrl = bookNameTag.attr('href')
-  const bookName = bookNameTag.attr('title')
-  const author = $('.h1title .author').text().replace(/作者：/, '')
+    const bookNameTag = $('.h1title .shuming a')
+    const indexPageUrl = bookNameTag.attr('href')
+    const bookName = bookNameTag.attr('title')
+    const author = $('.h1title .author').text().replace(/作者：/, '')
+    const nextPageUrl = $('#next').attr('href')
 
-  return [bookName, author, indexPageUrl]
+    if (nextPageUrl) {
+      return [bookName, author, indexPageUrl]
+    } else {
+      throw new Error('不支援的頁面')
+    }
+  } catch(err) {
+    throw err;
+  }
 }
 
 export default UUBook;

@@ -8,8 +8,13 @@ export default class BookMaker {
   }
 
   static async fetch(targetPageUrl) {
-    const Resource = matchResource(targetPageUrl)
-    return await Resource.fetch(targetPageUrl)
+    let Resource;
+    try {
+      Resource = matchResource(targetPageUrl)
+    } catch(err) {
+      throw err;
+    }
+    return Resource.fetch(targetPageUrl)
   }
 }
 
@@ -49,6 +54,6 @@ function matchResource(targetPageUrl) {
     case 'ck101':
       return CK101Book;
     default:
-      return CK101Book;
+      throw new Error('不支援的網站')
   }
 }

@@ -8,6 +8,7 @@
 
 <script>
 import { ipcRenderer } from  'electron'
+import alertify from 'alertifyjs';
 import eventBus from './eventBus'
 // components
 import MainContent from './components/mainContent.vue'
@@ -28,6 +29,10 @@ export default {
   mounted() {
     ipcRenderer.on('msg', (event, data) => {
       eventBus.$emit('msg', data)
+    }),
+
+    ipcRenderer.on('alert-error', (event, data) => {
+      alertify.error(data);
     })
   },
 

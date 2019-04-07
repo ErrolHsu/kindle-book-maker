@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer-core'
+import * as log from 'electron-log'
 
 const noop = function(){};
 
@@ -70,7 +71,6 @@ class Spider {
       // else {
       //     request.continue();
       // }
-
       const requestUrl = request._url.split('?')[0].split('#')[0];
       if (
         blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
@@ -86,7 +86,7 @@ class Spider {
     return this.page;
   }
 
-  async get(path, wait) {
+  async get(path, {wait, js = true} = {}) {
     let retry = 0;
     try {
       if (this.page.historyPages > 50) {
@@ -95,29 +95,19 @@ class Spider {
       }
 
       const { page } = this
+      if (!js) {
+        await page.setJavaScriptEnabled(false)
+      }
       await page.goto(path);
       if (wait) {
-        await page.waitForSelector( wait, { visible : true } );
+        await page.waitForSelector( wait, { visible : true, timeout: 10000 } )
       }
       const html = await page.content();
-      // page.removeAllListeners()
-      // await page.close()
       page.historyPages += 1
       return html;
     } catch (err) {
-      if (retry < 3) {
-        await this.page.close()
-        this.page = await this.newPage()
-
-        retry += 1
-        await this.page.goto(path);
-        if (wait) {
-          await page.waitForSelector( wait, { visible : true } );
-        }
-        const html = await this.page.content();
-      } else {
-        throw err
-      }
+      log.error(err)
+      throw new Error('不支援的頁面或超時');
     }
   }
 

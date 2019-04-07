@@ -2,6 +2,7 @@
 @import "color.css";
 @import "btn.css";
 @import "transition.css";
+@import "alertify.min.css";
 
 body {
   height: 100vh;
@@ -12,4 +13,8 @@ body {
 
 body div{
   box-sizing: border-box;
+}
+
+.alertify-notifier {
+  color: #fff !important;
 }

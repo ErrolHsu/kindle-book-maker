@@ -5,7 +5,7 @@ import * as log from 'electron-log'
 import opencc  from 'node-opencc';
 import { Spider } from '../spider'
 import Epub from '../epub';
-import { logMsg } from '../../helper/logger'
+import { logMsg } from '../../helper/message'
 
 class CK101Book {
   constructor(targetPageUrl, bookName, author) {
@@ -46,7 +46,7 @@ class CK101Book {
 
   async _createChapterRecursive(n, currentPageUrl) {
     logMsg(`Get ${currentPageUrl} ...`)
-    const html = await this.spider.get(currentPageUrl, '#postlist')
+    const html = await this.spider.get(currentPageUrl, {wait: '#postlist', js: false})
     const $ = cheerio.load(html, {
       decodeEntities: false
     })
@@ -100,26 +100,41 @@ function clearUpAndGetTitle(html) {
 }
 
 async function getBookInfo(spider, targetPageUrl) {
-  const html = await spider.get(targetPageUrl, '#postlist')
-  const $ = cheerio.load(html, {
-    decodeEntities: false
-  })
+  try {
+    let bookName = ''
+    let author = ''
+    const html = await spider.get(targetPageUrl, {js: false})
+    const $ = cheerio.load(html, {
+      decodeEntities: false
+    })
 
-  const subject = $('#thread_subject').text()
-  const subjectArray = subject.replace(/\[.*\]/, '')
-                              .replace(/【.*】/, '')
-                              .replace(/\{.*\}/, '')
-                              .replace(/\(.*\)/, '')
-                              .replace(/（.*）/, '')
-                              .replace(/『.*』/, '')
-                              .replace(/「.*」/, '')
-                              .replace(/[:：]/, '')
-                              .split('作者')
+    const subject = $('#thread_subject').text()
 
-  const bookName = subjectArray[0].trim()
-  const author = subjectArray[1].trim()
+    if (subject.length === 0) {
+      throw new Error('不支援的頁面')
+    }
 
-  return [bookName, author]
+    const subjectArray = subject.replace(/\[.*\]/, '')
+                                .replace(/【.*】/, '')
+                                .replace(/\{.*\}/, '')
+                                .replace(/\(.*\)/, '')
+                                .replace(/（.*）/, '')
+                                .replace(/『.*』/, '')
+                                .replace(/「.*」/, '')
+                                .replace(/[:：]/, '')
+                                .split('作者')
+
+    if (subjectArray[0] !== undefined) {
+      bookName = subjectArray[0].trim()
+    }
+
+    if (subjectArray[1] !== undefined) {
+      author = subjectArray[1].trim()
+    }
+    return [bookName, author]
+  } catch(err) {
+    throw err;
+  }
 }
 
 export default CK101Book;

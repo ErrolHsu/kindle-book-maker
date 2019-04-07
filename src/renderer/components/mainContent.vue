@@ -42,6 +42,7 @@
 </template>
 
 <script>
+  import alertify from 'alertifyjs';
   import { ipcRenderer } from  'electron'
   import eventBus from '../eventBus'
 
@@ -63,17 +64,25 @@
     },
 
     mounted() {
-      ipcRenderer.on('fetch-book-reply', (event, bookInfo) => {
+      ipcRenderer.on('fetch-book-reply', (event, data) => {
         eventBus.$emit('end-loadding')
-        this.bookInfo = Object.assign({}, bookInfo)
+        if (data.error) {
+          alertify.error(data.error);
+          return
+        }
+        this.bookInfo = Object.assign({}, data.bookInfo)
         this.bookInfoShow = true
         this.getBookBoxShow = true
         this.resultBoxShow = false
       })
 
-      ipcRenderer.on('job-done', (event, output) => {
+      ipcRenderer.on('job-done', (event, data) => {
         eventBus.$emit('end-loadding')
-        this.output = output
+        if (data.error) {
+          alertify.error(data.error);
+          return
+        }
+        this.output = data.output
         this.getBookBoxShow = false
         this.resultBoxShow = true
       })
