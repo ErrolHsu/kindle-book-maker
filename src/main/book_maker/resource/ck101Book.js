@@ -38,10 +38,10 @@ class CK101Book {
       log.error(err)
     }
 
-    await epub.build()
+    const ebookAt = await epub.build()
     await this.spider.done()
     logMsg('電子書製作完成。')
-    return this.output
+    return ebookAt
   }
 
   async _createChapterRecursive(n, currentPageUrl) {
