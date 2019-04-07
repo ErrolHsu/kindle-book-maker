@@ -14,12 +14,6 @@
 
 `NOTE: 會從輸入的連結那一章開始往下抓，勿填目錄頁`
 
-*只支援*
-
-* uu看書(https://www.uukanshu.com/)
-
-* 卡提諾(https://ck101.com/forum.php)
-
 ### Development Scripts
 
 ```bash
