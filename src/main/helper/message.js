@@ -9,6 +9,13 @@ function logMsg(data) {
   }
 }
 
+function loading() {
+  const win = BrowserWindow.getAllWindows()[0];
+  if (win) {
+    win.webContents.send('loading');
+  }
+}
+
 function alertSuccess(data) {
   const win = BrowserWindow.getAllWindows()[0];
   if (win) {
@@ -23,4 +30,4 @@ function alertError(data) {
   }
 }
 
-export { logMsg, alertSuccess, alertError }
+export { logMsg, alertSuccess, alertError, loading }

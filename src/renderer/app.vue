@@ -27,6 +27,10 @@ export default {
     }
   },
   mounted() {
+    ipcRenderer.on('loading', (event, data) => {
+      eventBus.$emit('loading')
+    }),
+
     ipcRenderer.on('msg', (event, data) => {
       eventBus.$emit('msg', data)
     }),

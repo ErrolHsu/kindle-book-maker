@@ -65,7 +65,7 @@
 
     mounted() {
       ipcRenderer.on('fetch-book-reply', (event, data) => {
-        eventBus.$emit('end-loadding')
+        eventBus.$emit('end-loading')
         if (data.error) {
           alertify.error(data.error);
           return
@@ -77,7 +77,7 @@
       })
 
       ipcRenderer.on('job-done', (event, data) => {
-        eventBus.$emit('end-loadding')
+        eventBus.$emit('end-loading')
         if (data.error) {
           alertify.error(data.error);
           return
@@ -90,13 +90,13 @@
 
     methods: {
       fetchBook: function() {
-        eventBus.$emit('loadding')
+        eventBus.$emit('loading')
         this.bookInfoShow = false;
         ipcRenderer.send('fetch-book', {targetUrl: this.targetUrl})
       },
 
       generateBook: function() {
-        eventBus.$emit('loadding')
+        eventBus.$emit('loading')
         ipcRenderer.send('generate-book', this.bookInfo)
       },
     }

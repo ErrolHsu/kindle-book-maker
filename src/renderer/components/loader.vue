@@ -20,11 +20,13 @@
     },
 
     mounted() {
-      eventBus.$on('loadding', () => {
-        this.show = true;
+      eventBus.$on('loading', () => {
+        if (!this.show) {
+          this.show = true;
+        }
       })
 
-      eventBus.$on('end-loadding', () => {
+      eventBus.$on('end-loading', () => {
         this.show = false;
       })
     },
