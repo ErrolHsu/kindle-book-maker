@@ -71,6 +71,7 @@ export default class Epub {
     await this._zip()
     await this._toMobi()
     // await this._clearTmpFile()
+    return this.output
   }
 
   addChapter(chapterNumber, title, content) {
