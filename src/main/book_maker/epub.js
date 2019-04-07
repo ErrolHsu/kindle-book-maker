@@ -66,13 +66,7 @@ export default class Epub {
   }
 
   async build() {
-    try {
-      await this._createContentOpf()
-    } catch(err) {
-      if (this.chapters.length === 0) {
-        return
-      }
-    }
+    await this._createContentOpf()
     await this._createToc()
     await this._zip()
     await this._toMobi()
