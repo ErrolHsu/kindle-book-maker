@@ -10,7 +10,7 @@
 
 3. wait..
 
-4. 打包好的ebook會在Downloads下面
+4. 打包好的ebook會在Downloads/eBooks下面
 
 `NOTE: 會從輸入的連結那一章開始往下抓，勿填目錄頁`
 
