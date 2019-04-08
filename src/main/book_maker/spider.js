@@ -41,6 +41,7 @@ class Spider {
   constructor() {
     this.browser = {}
     this.page = {}
+    this.historyPages = 0
   }
 
   async init() {
@@ -82,14 +83,14 @@ class Spider {
       }
     });
 
-    this.page.historyPages = 0
+    this.historyPages = 1
     return this.page;
   }
 
   async get(path, {wait, js = true} = {}) {
     let retry = 0;
     try {
-      if (this.page.historyPages > 50) {
+      if (this.historyPages > 50) {
         await this.page.close()
         this.page = await this.newPage()
       }
@@ -100,10 +101,10 @@ class Spider {
       }
       await page.goto(path);
       if (wait) {
-        await page.waitForSelector( wait, { visible : true, timeout: 10000 } )
+        await page.waitForSelector( wait, { visible : true, timeout: 30000 } )
       }
       const html = await page.content();
-      page.historyPages += 1
+      this.historyPages += 1
       return html;
     } catch (err) {
       log.error(err)
