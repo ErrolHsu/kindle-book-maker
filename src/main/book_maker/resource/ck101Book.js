@@ -21,14 +21,14 @@ class CK101Book {
     const spider = new Spider();
     await spider.init();
     let bookInfo = await getBookInfo(spider, targetPageUrl);
-    bookInfo = bookInfo.map( e => opencc.simplifiedToTraditional(e) )
+    // bookInfo = bookInfo.map( e => opencc.simplifiedToTraditional(e) )
     await spider.done()
     return { targetPageUrl, bookName: bookInfo[0], author: bookInfo[1] };
   }
 
   async build() {
     await this.spider.init();
-    this.epub = new Epub(this.bookName, this.author, this.output)
+    this.epub = new Epub(this.bookName, this.author, this.output, false)
     const { epub } = this
     await epub.init()
 
