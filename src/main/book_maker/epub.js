@@ -179,7 +179,13 @@ export default class Epub {
   _toMobi() {
     logMsg('Create Mobi ...')
     return new Promise((resolve, reject) => {
-      const kindlegen = path.join(BIN_PATH, 'kindlegen')
+      let kindlegen = path.join(BIN_PATH, 'kindlegen')
+      switch (process.platform) {
+        case 'win32':
+          kindlegen = path.join(BIN_PATH, 'kindlegen', 'kindlegen.exe');
+        case 'darwin':
+          kindlegen = path.join(BIN_PATH, 'kindlegen', 'kindlegen');
+      }
       const epubPath = path.resolve(this.output, `${this.name}.epub`)
       let gen = spawn(kindlegen, [epubPath]);
       gen.stdout.pipe(process.stdout);
